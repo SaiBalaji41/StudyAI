@@ -1,0 +1,30 @@
+# Dependencies
+node_modules/
+__pycache__/
+*.pyc
+.venv/
+venv/
+env/
+
+# Environment
+.env
+firebase-credentials.json
+
+# Data
+backend/data/uploads/*
+backend/data/local_db.json
+!backend/data/.gitkeep
+
+# Build
+frontend/dist/
+*.egg-info/
+
+# IDE
+.vscode/
+.idea/
+*.swp
+*.swo
+
+# OS
+.DS_Store
+Thumbs.db
