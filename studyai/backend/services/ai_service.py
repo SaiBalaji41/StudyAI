@@ -51,7 +51,7 @@ class AIService:
             cleaned = re.sub(r"^```(?:json)?\s*", "", cleaned)
             cleaned = re.sub(r"\s*```$", "", cleaned)
         try:
-            return json.loads(cleaned)
+            return json.loads(cleaned, strict=False)
         except json.JSONDecodeError as exc:
             raise ValueError(f"AI returned invalid JSON: {exc}") from exc
 
