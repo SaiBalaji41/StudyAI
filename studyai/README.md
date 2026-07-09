@@ -76,6 +76,8 @@ python app.py
 
 Backend runs at `http://localhost:5000`
 
+> **Deploy to Render:** See [RENDER_DEPLOY.md](./RENDER_DEPLOY.md) for step-by-step hosting instructions.
+
 ### 2. Frontend
 
 ```bash

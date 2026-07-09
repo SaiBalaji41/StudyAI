@@ -1,7 +1,7 @@
 from flask import Flask, jsonify
 from flask_cors import CORS
 
-from config import FLASK_DEBUG, FLASK_PORT, FLASK_SECRET_KEY
+from config import CORS_ORIGINS, FLASK_DEBUG, FLASK_PORT, FLASK_SECRET_KEY
 from routes.achievements import achievements_bp
 from routes.analytics import analytics_bp
 from routes.flashcards import flashcards_bp
@@ -21,7 +21,8 @@ def create_app() -> Flask:
     app.secret_key = FLASK_SECRET_KEY
     app.config["JSON_SORT_KEYS"] = False
     app.config["JSONIFY_PRETTYPRINT_REGULAR"] = False
-    CORS(app, resources={r"/api/*": {"origins": "*"}})
+    cors_origins = "*" if CORS_ORIGINS == "*" else [o.strip() for o in CORS_ORIGINS.split(",") if o.strip()]
+    CORS(app, resources={r"/api/*": {"origins": cors_origins}})
 
     app.register_blueprint(materials_bp, url_prefix="/api/materials")
     app.register_blueprint(summary_bp, url_prefix="/api/summary")

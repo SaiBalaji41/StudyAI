@@ -26,7 +26,7 @@ const navItems = [
 export default function Layout() {
   const [sidebarOpen, setSidebarOpen] = useState(false);
   const { theme, toggleTheme } = useTheme();
-  const { connected, loading, aiMode, storageMode } = useBackend();
+  const { aiMode, storageMode } = useBackend();
   const location = useLocation();
 
   const aiLabel = aiMode === 'groq' ? 'Groq AI' : 'Local AI';
@@ -63,10 +63,6 @@ export default function Layout() {
         </nav>
 
         <div className="sidebar-footer">
-          <div className={`backend-status ${connected ? 'online' : 'offline'}`}>
-            <span className="status-dot" />
-            {loading ? 'Connecting...' : connected ? 'Backend connected' : 'Backend offline'}
-          </div>
           <button className="theme-toggle" onClick={toggleTheme} title="Toggle theme">
             {theme === 'dark' ? <IconSun /> : <IconMoon />}
             <span>{theme === 'dark' ? 'Light Mode' : 'Dark Mode'}</span>
@@ -83,9 +79,6 @@ export default function Layout() {
             {navItems.find((n) => n.path === location.pathname)?.label || 'StudyAI'}
           </div>
           <div className="top-bar-actions">
-            <span className={`connection-pill ${connected ? 'online' : 'offline'}`}>
-              {loading ? '...' : connected ? 'Live' : 'Offline'}
-            </span>
             <span className="ai-badge" title={`Storage: ${storageMode}`}>{aiLabel}</span>
           </div>
         </header>
