@@ -8,6 +8,8 @@ env/
 
 # Environment
 .env
+.env.*
+!.env.example
 firebase-credentials.json
 
 # Data
@@ -18,6 +20,7 @@ backend/data/local_db.json
 # Build
 frontend/dist/
 *.egg-info/
+.vercel/
 
 # IDE
 .vscode/
