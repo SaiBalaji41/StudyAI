@@ -2,6 +2,8 @@ import { NavLink, Outlet, useLocation } from 'react-router-dom';
 import { useState } from 'react';
 import { useTheme } from '../context/ThemeContext';
 import { useBackend } from '../context/BackendContext';
+import { useAuth } from '../context/AuthContext';
+import { LogOut, Settings, User } from 'lucide-react';
 import {
   IconDashboard, IconUpload, IconBook, IconSummary, IconCards,
   IconQuiz, IconCalendar, IconChart, IconTutor, IconFocus,
@@ -21,12 +23,14 @@ const navItems = [
   { path: '/focus', label: 'Focus Timer', Icon: IconFocus },
   { path: '/achievements', label: 'Achievements', Icon: IconTrophy },
   { path: '/analytics', label: 'Analytics', Icon: IconChart },
+  { path: '/settings', label: 'Configuration', Icon: Settings },
 ];
 
 export default function Layout() {
   const [sidebarOpen, setSidebarOpen] = useState(false);
   const { theme, toggleTheme } = useTheme();
   const { aiMode, storageMode } = useBackend();
+  const { user, logout } = useAuth();
   const location = useLocation();
 
   const aiLabel = aiMode === 'groq' ? 'Groq AI' : 'Local AI';
@@ -78,8 +82,26 @@ export default function Layout() {
           <div className="top-bar-title">
             {navItems.find((n) => n.path === location.pathname)?.label || 'StudyAI'}
           </div>
-          <div className="top-bar-actions">
+          <div className="top-bar-actions" style={{ display: 'flex', alignItems: 'center', gap: '1rem' }}>
             <span className="ai-badge" title={`Storage: ${storageMode}`}>{aiLabel}</span>
+            {user && (
+              <div style={{ display: 'flex', alignItems: 'center', gap: '1rem', borderLeft: '1px solid var(--border)', paddingLeft: '1rem' }}>
+                <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', color: 'var(--text)' }}>
+                  <User size={16} />
+                  <span style={{ fontWeight: '600', fontSize: '0.9rem' }}>{user.username}</span>
+                </div>
+                <button 
+                  onClick={logout} 
+                  title="Log out"
+                  style={{ 
+                    background: 'transparent', border: 'none', color: 'var(--danger)', 
+                    cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center' 
+                  }}
+                >
+                  <LogOut size={18} />
+                </button>
+              </div>
+            )}
           </div>
         </header>
         <main className="main-content">

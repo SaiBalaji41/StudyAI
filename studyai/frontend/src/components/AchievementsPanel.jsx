@@ -1,4 +1,33 @@
 import { useState } from 'react';
+import {
+  Book, Folder, FileText, Layers, Lightbulb, Calendar, MessageSquare, Target,
+  Trophy, Crown, Star, CheckCircle, Flame, Dumbbell, Zap, BrainCircuit, Activity,
+  Timer, Flag, CheckSquare
+} from 'lucide-react';
+import Select from './Select';
+
+const ICON_MAP = {
+  first_upload: <Book size={36} color="#60a5fa" />,
+  library_keeper: <Folder size={36} color="#fbbf24" />,
+  first_summary: <FileText size={36} color="#a78bfa" />,
+  flashcard_user: <Layers size={36} color="#f472b6" />,
+  insight_seeker: <Lightbulb size={36} color="#facc15" />,
+  schedule_planner: <Calendar size={36} color="#38bdf8" />,
+  tutor_chat: <MessageSquare size={36} color="#a78bfa" />,
+  first_quiz: <Target size={36} color="#f43f5e" />,
+  quiz_master: <Trophy size={36} color="#fbbf24" />,
+  quiz_legend: <Crown size={36} color="#f59e0b" />,
+  high_scorer: <Star size={36} color="#fcd34d" />,
+  perfect_score: <CheckCircle size={36} color="#34d399" />,
+  streak_3: <Flame size={36} color="#f97316" />,
+  streak_7: <Dumbbell size={36} color="#8b5cf6" />,
+  streak_14: <Zap size={36} color="#eab308" />,
+  focus_hour: <BrainCircuit size={36} color="#10b981" />,
+  focus_marathon: <Activity size={36} color="#059669" />,
+  pomodoro_starter: <Timer size={36} color="#a78bfa" />,
+  goal_setter: <Flag size={36} color="#fb7185" />,
+  goal_crusher: <CheckSquare size={36} color="#4ade80" />,
+};
 
 export default function AchievementsPanel({ achievements = [], summary = null, showFilters = true, limit = 0 }) {
   const [filter, setFilter] = useState('all');
@@ -61,12 +90,16 @@ export default function AchievementsPanel({ achievements = [], summary = null, s
               </button>
             ))}
           </div>
-          <select value={category} onChange={(e) => setCategory(e.target.value)} className="category-select">
-            <option value="all">All Categories</option>
-            {categories.map((c) => (
-              <option key={c} value={c}>{c}</option>
-            ))}
-          </select>
+          <div style={{ minWidth: '150px' }}>
+            <Select 
+              value={category} 
+              onChange={setCategory}
+              options={[
+                { value: 'all', label: 'All Categories' },
+                ...categories.map(c => ({ value: c, label: c }))
+              ]}
+            />
+          </div>
         </div>
       )}
 
@@ -78,7 +111,9 @@ export default function AchievementsPanel({ achievements = [], summary = null, s
             title={a.description}
           >
             <div className="achievement-icon-wrap">
-              <div className="achievement-icon">{a.icon}</div>
+              <div className="achievement-icon" style={{ display: 'flex', justifyContent: 'center', alignItems: 'center', marginBottom: '0.5rem' }}>
+                {ICON_MAP[a.id] || a.icon}
+              </div>
               {a.unlocked && <span className="achievement-check">✓</span>}
             </div>
             <div className="achievement-title">{a.title}</div>

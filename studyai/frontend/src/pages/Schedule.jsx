@@ -9,6 +9,7 @@ import {
 import MaterialSelector from '../components/MaterialSelector';
 import LoadingSpinner from '../components/LoadingSpinner';
 import PageHero from '../components/PageHero';
+import { Lightbulb } from 'lucide-react';
 
 export default function Schedule() {
   const [materials, setMaterials] = useState([]);
@@ -167,8 +168,8 @@ export default function Schedule() {
               ))}
 
               {day.study_tip && (
-                <p style={{ fontSize: '0.85rem', color: 'var(--accent)', marginTop: '0.5rem' }}>
-                  💡 Tip: {day.study_tip}
+                <p style={{ fontSize: '0.85rem', color: 'var(--accent)', marginTop: '0.5rem', display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
+                  <Lightbulb size={16} /> Tip: {day.study_tip}
                 </p>
               )}
             </div>

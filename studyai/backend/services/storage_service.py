@@ -74,6 +74,33 @@ class StorageService:
                 return False
         return False
 
+    def create_user(self, user: dict[str, Any]) -> dict[str, Any]:
+        return local_storage.create_user(user)
+
+    def update_user(self, user_id: str, updates: dict[str, Any]) -> dict[str, Any] | None:
+        return local_storage.update_user(user_id, updates)
+
+    def delete_user(self, user_id: str) -> bool:
+        return local_storage.delete_user(user_id)
+
+    def get_user_by_id(self, user_id: str) -> dict[str, Any] | None:
+        return local_storage.get_user_by_id(user_id)
+
+    def get_user_by_email(self, email: str) -> dict[str, Any] | None:
+        return local_storage.get_user_by_email(email)
+
+    def get_user_by_username(self, username: str) -> dict[str, Any] | None:
+        return local_storage.get_user_by_username(username)
+
+    def create_session(self, token: str, user_id: str) -> None:
+        local_storage.create_session(token, user_id)
+
+    def get_session(self, token: str) -> str | None:
+        return local_storage.get_session(token)
+
+    def delete_session(self, token: str) -> None:
+        local_storage.delete_session(token)
+
     def save_material(self, material: dict[str, Any]) -> dict[str, Any]:
         if self.use_supabase:
             return self._save_document("materials", material["id"], material)

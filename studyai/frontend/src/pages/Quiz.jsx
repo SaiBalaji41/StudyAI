@@ -3,6 +3,8 @@ import { generateQuiz, getMaterials, submitQuiz } from '../services/api';
 import MaterialSelector from '../components/MaterialSelector';
 import LoadingSpinner from '../components/LoadingSpinner';
 import PageHero from '../components/PageHero';
+import Select from '../components/Select';
+import { Timer } from 'lucide-react';
 
 export default function Quiz() {
   const [materials, setMaterials] = useState([]);
@@ -82,19 +84,23 @@ export default function Quiz() {
           <MaterialSelector materials={materials} selectedId={selectedId} onChange={setSelectedId} />
           <div className="form-group">
             <label>Quiz Type</label>
-            <select value={quizType} onChange={(e) => setQuizType(e.target.value)}>
-              <option value="mcq">Multiple Choice (MCQ)</option>
-              <option value="true_false">True / False</option>
-              <option value="short_answer">Short Answer</option>
-            </select>
+            <Select 
+              value={quizType} 
+              onChange={setQuizType}
+              options={[
+                { value: 'mcq', label: 'Multiple Choice (MCQ)' },
+                { value: 'true_false', label: 'True / False' },
+                { value: 'short_answer', label: 'Short Answer' }
+              ]}
+            />
           </div>
           <div className="form-group">
             <label>Number of Questions</label>
-            <select value={numQuestions} onChange={(e) => setNumQuestions(Number(e.target.value))}>
-              {[3, 5, 10, 15, 20].map((n) => (
-                <option key={n} value={n}>{n} questions</option>
-              ))}
-            </select>
+            <Select 
+              value={numQuestions} 
+              onChange={setNumQuestions}
+              options={[3, 5, 10, 15, 20].map(n => ({ value: n, label: `${n} questions` }))}
+            />
           </div>
           <button className="btn btn-primary" onClick={handleGenerate} disabled={!selectedId || loading}>
             {loading ? 'Generating...' : 'Generate Quiz'}
@@ -109,7 +115,7 @@ export default function Quiz() {
         <div className="card">
           <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '1.5rem' }}>
             <h3>{quiz.material_title} — {quiz.quiz_type.replace('_', ' ').toUpperCase()}</h3>
-            <div className={`quiz-timer ${timer > 300 ? 'warning' : ''}`}>⏱️ {formatTimer(timer)}</div>
+            <div className={`quiz-timer ${timer > 300 ? 'warning' : ''}`} style={{ display: 'flex', alignItems: 'center', gap: '0.25rem' }}><Timer size={16} /> {formatTimer(timer)}</div>
           </div>
 
           {quiz.questions.map((q, idx) => (

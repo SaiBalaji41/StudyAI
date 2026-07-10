@@ -5,15 +5,37 @@ const api = axios.create({
   timeout: 120000,
 });
 
+api.interceptors.request.use((config) => {
+  const token = localStorage.getItem('studyai_token');
+  if (token) {
+    config.headers.Authorization = `Bearer ${token}`;
+  }
+  return config;
+});
+
 api.interceptors.response.use(
   (response) => response,
   (error) => {
+    if (error.response?.status === 401) {
+        localStorage.removeItem('studyai_token');
+        if (!window.location.pathname.startsWith('/login') && !window.location.pathname.startsWith('/signup')) {
+            window.location.href = '/login';
+        }
+    }
     if (!error.response) {
       error.message = 'Cannot reach backend. Start the Flask server on port 5000.';
     }
     return Promise.reject(error);
   },
 );
+
+export const authSignup = (data) => api.post('/auth/signup', data);
+export const authLogin = (data) => api.post('/auth/login', data);
+export const authLogout = () => api.post('/auth/logout');
+export const getMe = () => api.get('/auth/me');
+export const authUpdateProfile = (data) => api.put('/auth/profile', data);
+export const authUpdatePassword = (data) => api.put('/auth/password', data);
+export const authDeleteAccount = () => api.delete('/auth/account');
 
 export const checkBackendHealth = () => api.get('/health');
 

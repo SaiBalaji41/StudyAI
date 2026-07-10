@@ -2,6 +2,7 @@ import { useEffect, useState, useRef } from 'react';
 import { getMaterials, chatWithTutor, getChatHistory, clearChat } from '../services/api';
 import MaterialSelector from '../components/MaterialSelector';
 import PageHero from '../components/PageHero';
+import { MessageSquare } from 'lucide-react';
 
 const SUGGESTIONS = [
   'Explain the main concepts in simple terms',
@@ -66,9 +67,9 @@ export default function Tutor() {
       <div className="card chat-container">
         <div className="chat-messages">
           {messages.length === 0 && !thinking && (
-            <div className="empty-state" style={{ padding: '2rem' }}>
-              <div className="empty-state-icon">💬</div>
-              <p>Select a material and start chatting with your AI tutor!</p>
+            <div className="card" style={{ flex: 1, display: 'flex', alignItems: 'center', justifyContent: 'center', flexDirection: 'column', gap: '1rem', padding: '2rem' }}>
+              <div className="empty-state-icon" style={{ color: 'var(--text-muted)' }}><MessageSquare size={48} /></div>
+              <p style={{ color: 'var(--text-muted)' }}>Select a material from the sidebar to start a tutoring session.</p>
               {selectedId && (
                 <div style={{ display: 'flex', flexWrap: 'wrap', gap: '0.5rem', justifyContent: 'center', marginTop: '1rem' }}>
                   {SUGGESTIONS.map((s) => (

@@ -8,6 +8,7 @@ import {
 import MaterialSelector from '../components/MaterialSelector';
 import LoadingSpinner from '../components/LoadingSpinner';
 import PageHero from '../components/PageHero';
+import Select from '../components/Select';
 
 export default function Flashcards() {
   const [materials, setMaterials] = useState([]);
@@ -87,11 +88,11 @@ export default function Flashcards() {
         <MaterialSelector materials={materials} selectedId={selectedId} onChange={setSelectedId} />
         <div className="form-group">
           <label>Number of Cards</label>
-          <select value={count} onChange={(e) => setCount(Number(e.target.value))}>
-            {[5, 10, 15, 20, 25, 30].map((n) => (
-              <option key={n} value={n}>{n} cards</option>
-            ))}
-          </select>
+          <Select 
+            value={count} 
+            onChange={setCount}
+            options={[5, 10, 15, 20, 25, 30].map(n => ({ value: n, label: `${n} cards` }))}
+          />
         </div>
         <button className="btn btn-primary" onClick={handleGenerate} disabled={!selectedId || loading}>
           {loading ? 'Generating...' : deck ? 'Regenerate Deck' : 'Generate Flashcards'}

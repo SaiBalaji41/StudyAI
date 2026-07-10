@@ -3,6 +3,7 @@ import { generateInsights, getInsights, generatePractice, getMaterials } from '.
 import MaterialSelector from '../components/MaterialSelector';
 import PageHero from '../components/PageHero';
 import LoadingSpinner from '../components/LoadingSpinner';
+import { Target, AlertTriangle, Lightbulb } from 'lucide-react';
 
 export default function Insights() {
   const [materials, setMaterials] = useState([]);
@@ -100,13 +101,13 @@ export default function Insights() {
           <div className="insight-grid">
             {insights.exam_tips?.length > 0 && (
               <div className="insight-card">
-                <h4>🎯 Exam Tips</h4>
+                <h4 style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}><Target size={18} /> Exam Tips</h4>
                 <ul>{insights.exam_tips.map((t, i) => <li key={i}>{t}</li>)}</ul>
               </div>
             )}
             {insights.common_mistakes?.length > 0 && (
               <div className="insight-card">
-                <h4>⚠️ Common Mistakes</h4>
+                <h4 style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', marginTop: '1rem' }}><AlertTriangle size={18} /> Common Mistakes</h4>
                 <ul>{insights.common_mistakes.map((m, i) => <li key={i}>{m}</li>)}</ul>
               </div>
             )}
@@ -155,7 +156,7 @@ export default function Insights() {
             <div key={q.id} className="quiz-question">
               <h4>Q{i + 1}. {q.question}</h4>
               <span className="badge badge-medium">{q.topic}</span>
-              {q.hint && <p style={{ fontSize: '0.85rem', color: 'var(--accent)', marginTop: '0.5rem' }}>💡 Hint: {q.hint}</p>}
+              {q.hint && <p style={{ fontSize: '0.85rem', color: 'var(--accent)', marginTop: '0.5rem', display: 'flex', alignItems: 'center', gap: '0.5rem' }}><Lightbulb size={16} /> Hint: {q.hint}</p>}
               <details style={{ marginTop: '0.75rem' }}>
                 <summary style={{ cursor: 'pointer', color: 'var(--primary-light)', fontSize: '0.85rem' }}>Show Answer</summary>
                 <p style={{ marginTop: '0.5rem' }}><strong>Answer:</strong> {q.answer}</p>

@@ -4,11 +4,14 @@ import { getMaterials, deleteMaterial, searchMaterials } from '../services/api';
 import { useToast } from '../context/ToastContext';
 import PageHero from '../components/PageHero';
 import LoadingSpinner from '../components/LoadingSpinner';
+import ConfirmModal from '../components/ConfirmModal';
+import { Book, Trash2, Search } from 'lucide-react';
 
 export default function Library() {
   const [materials, setMaterials] = useState([]);
   const [search, setSearch] = useState('');
   const [loading, setLoading] = useState(true);
+  const [deleteModal, setDeleteModal] = useState({ isOpen: false, id: null, title: '' });
   const { addToast } = useToast();
 
   const load = async (q = '') => {
@@ -34,14 +37,19 @@ export default function Library() {
     searchTimer.current = setTimeout(() => load(q), 300);
   };
 
-  const handleDelete = async (id, title) => {
-    if (!confirm(`Delete "${title}"? This removes all related data.`)) return;
+  const triggerDelete = (id, title) => {
+    setDeleteModal({ isOpen: true, id, title });
+  };
+
+  const handleConfirmDelete = async () => {
     try {
-      await deleteMaterial(id);
+      await deleteMaterial(deleteModal.id);
       addToast('Material deleted', 'success');
       load(search);
     } catch {
       addToast('Delete failed', 'error');
+    } finally {
+      setDeleteModal({ isOpen: false, id: null, title: '' });
     }
   };
 
@@ -57,7 +65,7 @@ export default function Library() {
       {loading ? <LoadingSpinner message="Loading library..." /> : materials.length === 0 ? (
         <div className="card">
           <div className="empty-state">
-            <div className="empty-state-icon">📚</div>
+            <div className="empty-state-icon" style={{ color: 'var(--text-muted)', marginBottom: '1rem' }}><Book size={48} /></div>
             <p>{search ? 'No materials match your search.' : 'Your library is empty.'}</p>
             <Link to="/upload" className="btn btn-primary" style={{ marginTop: '1rem' }}>Upload Material</Link>
           </div>
@@ -76,12 +84,20 @@ export default function Library() {
               <div className="material-item-actions">
                 <Link to="/summary" className="btn btn-secondary" style={{ fontSize: '0.75rem', padding: '0.35rem 0.7rem' }}>Summary</Link>
                 <Link to="/quiz" className="btn btn-secondary" style={{ fontSize: '0.75rem', padding: '0.35rem 0.7rem' }}>Quiz</Link>
-                <button className="btn btn-ghost" onClick={() => handleDelete(m.id, m.title)} title="Delete">🗑️</button>
+                <button className="btn btn-ghost" onClick={() => triggerDelete(m.id, m.title)} title="Delete"><Trash2 size={16} /></button>
               </div>
             </div>
           ))}
         </div>
       )}
+
+      <ConfirmModal
+        isOpen={deleteModal.isOpen}
+        onClose={() => setDeleteModal({ isOpen: false, id: null, title: '' })}
+        onConfirm={handleConfirmDelete}
+        title="Delete Material?"
+        message={`Are you sure you want to delete "${deleteModal.title}"? This will also remove all associated summaries, flashcards, and quizzes.`}
+      />
     </div>
   );
 }
