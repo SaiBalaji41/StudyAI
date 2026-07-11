@@ -44,7 +44,7 @@ def generate_insights(material_id: str):
 def get_insights(material_id: str):
     insights = storage_service.get_insights(material_id)
     if not insights:
-        return jsonify({"error": "Insights not found. Generate first."}), 404
+        return jsonify({"insights": None}), 200
     return jsonify({"insights": insights})
 
 

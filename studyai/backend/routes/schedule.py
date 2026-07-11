@@ -69,7 +69,7 @@ def list_schedules():
 def get_schedule(schedule_id: str):
     schedule = storage_service.get_schedule(schedule_id)
     if not schedule:
-        return jsonify({"error": "Schedule not found"}), 404
+        return jsonify({"schedule": None}), 200
     return jsonify({"schedule": schedule})
 
 

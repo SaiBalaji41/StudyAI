@@ -77,7 +77,7 @@ def submit_quiz(quiz_id: str):
             if q_type == "short_answer":
                 if user_answer:
                     evaluation = ai_service.evaluate_short_answer(
-                        question["question"], correct_answer, user_answer
+                        question.get("question", ""), correct_answer, user_answer
                     )
                     is_correct = evaluation.get("is_correct", False)
                     score = evaluation.get("score", 0)
@@ -95,7 +95,7 @@ def submit_quiz(quiz_id: str):
 
             results.append({
                 "question_id": qid,
-                "question": question["question"],
+                "question": question.get("question", "Question text unavailable"),
                 "user_answer": user_answer,
                 "correct_answer": correct_answer,
                 "is_correct": is_correct,

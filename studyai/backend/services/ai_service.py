@@ -109,9 +109,9 @@ Return ONLY valid JSON array."""
         if not self._use_groq():
             return local_ai_service.generate_quiz(content, quiz_type, num_questions)
         type_instructions = {
-            "mcq": 'type "mcq", options array of 4, correct_answer, explanation, topic',
-            "true_false": 'type "true_false", options ["True","False"], correct_answer, explanation, topic',
-            "short_answer": 'type "short_answer", correct_answer, explanation, topic',
+            "mcq": 'must include keys: "question", "type" (value="mcq"), "options" (array of 4 strings), "correct_answer", "explanation", "topic"',
+            "true_false": 'must include keys: "question", "type" (value="true_false"), "options" (array of ["True","False"]), "correct_answer", "explanation", "topic"',
+            "short_answer": 'must include keys: "question", "type" (value="short_answer"), "correct_answer", "explanation", "topic"',
         }
         system_prompt = f"""Generate exactly {num_questions} {quiz_type} questions. {type_instructions.get(quiz_type, '')}
 Return JSON array only."""
@@ -136,10 +136,13 @@ Return JSON array only."""
     def generate_schedule(self, content: str, weak_topics: list[dict[str, Any]], material_title: str) -> dict[str, Any]:
         if not self._use_groq():
             return local_ai_service.generate_schedule(content, weak_topics, material_title)
-        weak_topics_str = json.dumps(weak_topics) if weak_topics else "[]"
-        system_prompt = "Generate 7-day study schedule as JSON with title, overview, days array."
-        user_prompt = f'Plan for "{material_title}":\n{content[:8000]}\nWeak: {weak_topics_str}'
-        return self._parse_json(self._call_ai(system_prompt, user_prompt, max_tokens=5000))
+        try:
+            weak_topics_str = json.dumps(weak_topics) if weak_topics else "[]"
+            system_prompt = "Generate 7-day study schedule as JSON with title, overview, days array."
+            user_prompt = f'Plan for "{material_title}":\n{content[:8000]}\nWeak: {weak_topics_str}'
+            return self._parse_json(self._call_ai(system_prompt, user_prompt, max_tokens=5000))
+        except ValueError:
+            return local_ai_service.generate_schedule(content, weak_topics, material_title)
 
     def chat_with_tutor(self, content: str, material_title: str, message: str, history: list[dict[str, str]]) -> str:
         if not self._use_groq():
@@ -158,9 +161,12 @@ Context: {content[:8000]}"""
     def generate_insights(self, content: str, title: str) -> dict[str, Any]:
         if not self._use_groq():
             return local_ai_service.generate_insights(content, title)
-        system_prompt = "Return JSON with exam_tips, common_mistakes, memory_techniques, key_formulas, study_priority, estimated_study_hours, difficulty_rating, mind_map."
-        user_prompt = f'Analyze "{title}":\n{content[:10000]}'
-        return self._parse_json(self._call_ai(system_prompt, user_prompt, max_tokens=3000))
+        try:
+            system_prompt = "Return JSON with exam_tips, common_mistakes, memory_techniques, key_formulas, study_priority, estimated_study_hours, difficulty_rating, mind_map."
+            user_prompt = f'Analyze "{title}":\n{content[:10000]}'
+            return self._parse_json(self._call_ai(system_prompt, user_prompt, max_tokens=3000))
+        except ValueError:
+            return local_ai_service.generate_insights(content, title)
 
     def generate_practice_for_weak_topics(self, content: str, weak_topics: list[str], count: int = 5) -> list[dict[str, Any]]:
         if not self._use_groq():
