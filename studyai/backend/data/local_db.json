@@ -1,0 +1,354 @@
+{
+  "materials": {
+    "8d0eb99e-1b91-4c8c-9581-c19aa66bd335": {
+      "id": "8d0eb99e-1b91-4c8c-9581-c19aa66bd335",
+      "title": "Software Quotations",
+      "filename": "Software Quotations.pdf",
+      "source_type": "pdf",
+      "content": "SOFTWARE PROPOSAL\nTo:Client Name\nClient AddressFrom:HPS OPC Pvt. Ltd\n31-7-67, Assam Gardens,\nVisakhapatnam,\nAndhra Pradesh - 530020\nDate: 2026-07-09\n1. Project Overview\nProvide an overview of the project here...\n2. Platform Technology Stack\nFront-end:\nReact.jsBack-end:\nNode.js\nDatabase:\nPostgreSQLCloud/Server:\nAWS\n3. Core Features & Modules\n3.1 Module Name\nFeature description\n4. Maintenance & Support\n10% of total cost after 1 year of free AMC.\n\n5. Pricing Structure\nModules / Services HSN Unit priceQty Total (₹ )\nItem Name - 0/-1 ₹0/-\nSubtotal: ₹0/-\nCGST (9%): ₹0/-\nSGST (9%): ₹0/-\nTotal Estimated Cost: ₹0/-\nTerms & Conditions\n1. Prices mentioned above are inclusive of GST.\n2. Delivery will be completed within 3 working days from the date of confirmation.\n3. Installation and basic configuration support will be provided.\n4. Warranty will be as per manufacturer terms.\n5. Payment Terms: 50% Advance and balance upon delivery/installment.\n6. Quotation validity: 15 days from the date of issue.\nWe hope the above quotation meets your requirements and look forward to your positive response.\nBank Details:\nHarsha Perfect Solutions (OPC) Pvt Ltd\n- Account No: 50200067694674\n- Bank: HDFC Bank, Visakhapatnam\n- IFSC: HDFC0001243\nFrom,\nDr. P. Satheesh\nDirector\nHarsha Perfect Solutions OPC Pvt. Ltd. Client Signature / Seal",
+      "word_count": 203,
+      "char_count": 1325,
+      "created_at": "2026-07-10T17:43:53.710476+00:00"
+    }
+  },
+  "summaries": {
+    "8d0eb99e-1b91-4c8c-9581-c19aa66bd335": {
+      "material_id": "8d0eb99e-1b91-4c8c-9581-c19aa66bd335",
+      "material_title": "Software Quotations",
+      "title": "Software Quotations",
+      "overview": "SOFTWARE PROPOSAL\nTo:Client Name\nClient AddressFrom:HPS OPC Pvt. Ltd\n31-7-67, Assam Gardens,\nVisakhapatnam,\nAndhra Pradesh - 530020\nDate: 2026-07-09\n1. Project Overview\nProvide an overview of the project here...",
+      "key_concepts": [
+        "Client",
+        "Total",
+        "Terms",
+        "Visakhapatnam",
+        "Project",
+        "Overview"
+      ],
+      "definitions": [
+        {
+          "term": "SOFTWARE PROPOSAL\nTo",
+          "definition": "Client Name\nClient AddressFrom:HPS OPC Pvt."
+        },
+        {
+          "term": "Ltd\n31-7-67, Assam Gardens,\nVisakhapatnam,\nAndhra Pradesh - ",
+          "definition": "2026-07-09\n1."
+        },
+        {
+          "term": "Platform Technology Stack\nFront-end",
+          "definition": "React.jsBack-end:\nNode.js\nDatabase:\nPostgreSQLCloud/Server:\nAWS\n3."
+        }
+      ],
+      "core_principles": [
+        "Ltd\n31-7-67, Assam Gardens,\nVisakhapatnam,\nAndhra Pradesh - 530020\nDate: 2026-07-09\n1.",
+        "Project Overview\nProvide an overview of the project here...",
+        "Platform Technology Stack\nFront-end:\nReact.jsBack-end:\nNode.js\nDatabase:\nPostgreSQLCloud/Server:\nAWS\n3.",
+        "Core Features & Modules\n3.1 Module Name\nFeature description\n4."
+      ],
+      "revision_notes": [
+        "Review: Client",
+        "Review: Total",
+        "Review: Terms",
+        "Review: Visakhapatnam",
+        "Review: Project"
+      ],
+      "markdown": "# Software Quotations\n\n## Overview\nSOFTWARE PROPOSAL\nTo:Client Name\nClient AddressFrom:HPS OPC Pvt. Ltd\n31-7-67, Assam Gardens,\nVisakhapatnam,\nAndhra Pradesh - 530020\nDate: 2026-07-09\n1. Project Overview\nProvide an overview of the project here...\n\n## Key Concepts\n- Client\n- Total\n- Terms\n- Visakhapatnam\n- Project\n- Overview\n\n## Important Definitions\n**SOFTWARE PROPOSAL\nTo**: Client Name\nClient AddressFrom:HPS OPC Pvt.\n**Ltd\n31-7-67, Assam Gardens,\nVisakhapatnam,\nAndhra Pradesh - **: 2026-07-09\n1.\n**Platform Technology Stack\nFront-end**: React.jsBack-end:\nNode.js\nDatabase:\nPostgreSQLCloud/Server:\nAWS\n3.\n\n## Core Principles\n- Ltd\n31-7-67, Assam Gardens,\nVisakhapatnam,\nAndhra Pradesh - 530020\nDate: 2026-07-09\n1.\n- Project Overview\nProvide an overview of the project here...\n- Platform Technology Stack\nFront-end:\nReact.jsBack-end:\nNode.js\nDatabase:\nPostgreSQLCloud/Server:\nAWS\n3.\n- Core Features & Modules\n3.1 Module Name\nFeature description\n4.\n\n## Revision Notes\n- Review: Client\n- Review: Total\n- Review: Terms\n- Review: Visakhapatnam\n- Review: Project",
+      "generated_at": "2026-07-10T17:45:55.103771+00:00"
+    }
+  },
+  "flashcards": {
+    "8d0eb99e-1b91-4c8c-9581-c19aa66bd335": {
+      "material_id": "8d0eb99e-1b91-4c8c-9581-c19aa66bd335",
+      "material_title": "Software Quotations",
+      "cards": [
+        {
+          "id": "card_1",
+          "question": "Explain: SOFTWARE PROPOSAL\nTo:Client Name\nClient AddressFrom:HPS OPC ?",
+          "answer": "SOFTWARE PROPOSAL\nTo:Client Name\nClient AddressFrom:HPS OPC Pvt.",
+          "topic": "Client",
+          "difficulty": "easy"
+        },
+        {
+          "id": "card_2",
+          "question": "What is described here: Ltd\n31-7-67, Assam Gardens,\nVisakhapatnam,\nAndhra Pradesh - 530020\nDate: 2026-07...?",
+          "answer": "Ltd\n31-7-67, Assam Gardens,\nVisakhapatnam,\nAndhra Pradesh - 530020\nDate: 2026-07-09\n1.",
+          "topic": "Assam",
+          "difficulty": "medium"
+        },
+        {
+          "id": "card_3",
+          "question": "Explain: Project Overview\nProvide an overview of the project here...?",
+          "answer": "Project Overview\nProvide an overview of the project here...",
+          "topic": "Project",
+          "difficulty": "hard"
+        },
+        {
+          "id": "card_4",
+          "question": "What is described here: Platform Technology Stack\nFront-end:\nReact.jsBack-end:\nNode.js\nDatabase:\nPostgre...?",
+          "answer": "Platform Technology Stack\nFront-end:\nReact.jsBack-end:\nNode.js\nDatabase:\nPostgreSQLCloud/Server:\nAWS\n3.",
+          "topic": "Platform",
+          "difficulty": "easy"
+        },
+        {
+          "id": "card_5",
+          "question": "Explain: Core Features & Modules\n3.1 Module Name\nFeature description\n?",
+          "answer": "Core Features & Modules\n3.1 Module Name\nFeature description\n4.",
+          "topic": "Features",
+          "difficulty": "medium"
+        },
+        {
+          "id": "card_6",
+          "question": "Explain: Maintenance & Support\n10% of total cost after 1 year of free?",
+          "answer": "Maintenance & Support\n10% of total cost after 1 year of free AMC.",
+          "topic": "Maintenance",
+          "difficulty": "hard"
+        },
+        {
+          "id": "card_7",
+          "question": "What is described here: Pricing Structure\nModules / Services HSN Unit priceQty Total (₹ )\nItem Name - 0/...?",
+          "answer": "Pricing Structure\nModules / Services HSN Unit priceQty Total (₹ )\nItem Name - 0/-1 ₹0/-\nSubtotal: ₹0/-\nCGST (9%): ₹0/-\nSGST (9%): ₹0/-\nTotal Estimated Cost: ₹0/-\nTerms & Conditions\n1.",
+          "topic": "Total",
+          "difficulty": "easy"
+        },
+        {
+          "id": "card_8",
+          "question": "Explain: Prices mentioned above are inclusive of GST.?",
+          "answer": "Prices mentioned above are inclusive of GST.",
+          "topic": "Prices",
+          "difficulty": "medium"
+        },
+        {
+          "id": "card_9",
+          "question": "Explain: Delivery will be completed within 3 working days from the da?",
+          "answer": "Delivery will be completed within 3 working days from the date of confirmation.",
+          "topic": "Delivery",
+          "difficulty": "hard"
+        },
+        {
+          "id": "card_10",
+          "question": "Explain: Installation and basic configuration support will be provide?",
+          "answer": "Installation and basic configuration support will be provided.",
+          "topic": "Installation",
+          "difficulty": "easy"
+        }
+      ],
+      "total_count": 10,
+      "mastered_count": 0,
+      "known_cards": [],
+      "generated_at": "2026-07-10T17:46:23.052700+00:00"
+    }
+  },
+  "quizzes": {
+    "09c5acc5-93e6-4e2d-a6fe-37467f311ad6": {
+      "id": "09c5acc5-93e6-4e2d-a6fe-37467f311ad6",
+      "material_id": "8d0eb99e-1b91-4c8c-9581-c19aa66bd335",
+      "material_title": "Software Quotations",
+      "quiz_type": "mcq",
+      "questions": [
+        {
+          "id": "q_1",
+          "question": "Which statement best matches the material about Client?",
+          "type": "mcq",
+          "options": [
+            "SOFTWARE PROPOSAL\nTo:Client Name\nClient AddressFrom:HPS OPC ",
+            "Ltd\n31-7-67, Assam Gardens,\nVisakhapatna",
+            "Project Overview\nProvide an overview of ",
+            "Platform Technology Stack\nFront-end:\nRea"
+          ],
+          "correct_answer": "SOFTWARE PROPOSAL\nTo:Client Name\nClient AddressFrom:HPS OPC ",
+          "explanation": "SOFTWARE PROPOSAL\nTo:Client Name\nClient AddressFrom:HPS OPC Pvt.",
+          "topic": "Client"
+        },
+        {
+          "id": "q_2",
+          "question": "Which statement best matches the material about Total?",
+          "type": "mcq",
+          "options": [
+            "Ltd\n31-7-67, Assam Gardens,\nVisakhapatnam,\nAndhra Pradesh - ",
+            "Project Overview\nProvide an overview of ",
+            "Platform Technology Stack\nFront-end:\nRea",
+            "Core Features & Modules\n3.1 Module Name\n"
+          ],
+          "correct_answer": "Ltd\n31-7-67, Assam Gardens,\nVisakhapatnam,\nAndhra Pradesh - ",
+          "explanation": "Ltd\n31-7-67, Assam Gardens,\nVisakhapatnam,\nAndhra Pradesh - 530020\nDate: 2026-07-09\n1.",
+          "topic": "Total"
+        },
+        {
+          "id": "q_3",
+          "question": "Which statement best matches the material about Terms?",
+          "type": "mcq",
+          "options": [
+            "Project Overview\nProvide an overview of the project here...",
+            "Platform Technology Stack\nFront-end:\nRea",
+            "Core Features & Modules\n3.1 Module Name\n",
+            "Maintenance & Support\n10% of total cost "
+          ],
+          "correct_answer": "Project Overview\nProvide an overview of the project here...",
+          "explanation": "Project Overview\nProvide an overview of the project here...",
+          "topic": "Terms"
+        },
+        {
+          "id": "q_4",
+          "question": "Which statement best matches the material about Visakhapatnam?",
+          "type": "mcq",
+          "options": [
+            "Platform Technology Stack\nFront-end:\nReact.jsBack-end:\nNode.",
+            "Core Features & Modules\n3.1 Module Name\n",
+            "Maintenance & Support\n10% of total cost ",
+            "Pricing Structure\nModules / Services HSN"
+          ],
+          "correct_answer": "Platform Technology Stack\nFront-end:\nReact.jsBack-end:\nNode.",
+          "explanation": "Platform Technology Stack\nFront-end:\nReact.jsBack-end:\nNode.js\nDatabase:\nPostgreSQLCloud/Server:\nAWS\n3.",
+          "topic": "Visakhapatnam"
+        },
+        {
+          "id": "q_5",
+          "question": "Which statement best matches the material about Project?",
+          "type": "mcq",
+          "options": [
+            "Core Features & Modules\n3.1 Module Name\nFeature description\n",
+            "Maintenance & Support\n10% of total cost ",
+            "Pricing Structure\nModules / Services HSN",
+            "Prices mentioned above are inclusive of "
+          ],
+          "correct_answer": "Core Features & Modules\n3.1 Module Name\nFeature description\n",
+          "explanation": "Core Features & Modules\n3.1 Module Name\nFeature description\n4.",
+          "topic": "Project"
+        }
+      ],
+      "num_questions": 5,
+      "created_at": "2026-07-10T17:46:37.224111+00:00"
+    }
+  },
+  "quiz_results": [],
+  "schedules": {},
+  "insights": {
+    "8d0eb99e-1b91-4c8c-9581-c19aa66bd335": {
+      "material_id": "8d0eb99e-1b91-4c8c-9581-c19aa66bd335",
+      "material_title": "Software Quotations",
+      "exam_tips": [
+        "Review key concepts daily in the week before your exam.",
+        "Focus extra time on: Client, Total, Terms.",
+        "Practice active recall instead of passive re-reading."
+      ],
+      "common_mistakes": [
+        "Skipping revision of foundational concepts.",
+        "Not practicing with quiz questions before the exam."
+      ],
+      "memory_techniques": [
+        "Create acronyms from key terms.",
+        "Teach the material to someone else to reinforce memory."
+      ],
+      "key_formulas": [],
+      "study_priority": [
+        {
+          "topic": "Client",
+          "importance": "high",
+          "reason": "Frequently referenced in material"
+        },
+        {
+          "topic": "Total",
+          "importance": "high",
+          "reason": "Frequently referenced in material"
+        },
+        {
+          "topic": "Terms",
+          "importance": "medium",
+          "reason": "Frequently referenced in material"
+        },
+        {
+          "topic": "Visakhapatnam",
+          "importance": "medium",
+          "reason": "Frequently referenced in material"
+        }
+      ],
+      "estimated_study_hours": 2,
+      "difficulty_rating": "medium",
+      "mind_map": {
+        "central_topic": "Software Quotations",
+        "branches": [
+          {
+            "label": "Client",
+            "children": [
+              "Detail about Client"
+            ]
+          },
+          {
+            "label": "Total",
+            "children": [
+              "Detail about Total"
+            ]
+          },
+          {
+            "label": "Terms",
+            "children": [
+              "Detail about Terms"
+            ]
+          },
+          {
+            "label": "Visakhapatnam",
+            "children": [
+              "Detail about Visakhapatnam"
+            ]
+          }
+        ]
+      },
+      "generated_at": "2026-07-10T17:46:08.021674+00:00"
+    }
+  },
+  "chat_sessions": {},
+  "users": {
+    "a90cb26a-63fe-4628-acd9-e281da87de6b": {
+      "id": "a90cb26a-63fe-4628-acd9-e281da87de6b",
+      "full_name": "Harsha",
+      "email": "vemalivardhan@gmail.com",
+      "username": "Harsha_05",
+      "password_hash": "scrypt:32768:8:1$IeObW9bKK3AcKWmd$c64eb98cca7e00b71171d65b229cf094049cda02d6a752bcca23577224cef137c92058d2682e432afff6cf40cbd2f0053b02d939ecd921add2321a92ad715c67",
+      "created_at": "2026-07-11T09:41:18.850540+00:00"
+    }
+  },
+  "sessions": {
+    "f13d45640e3c4e4427ceff6566fbad2a708f1b504ecfce5cc559cc5211cfcac3": {
+      "user_id": "a90cb26a-63fe-4628-acd9-e281da87de6b",
+      "created_at": "2026-07-11T09:41:18.856696+00:00"
+    },
+    "cab2c638f32ec152402a5f441cb57e7bde8a0695e02999cc467218dc28b8d249": {
+      "user_id": "a90cb26a-63fe-4628-acd9-e281da87de6b",
+      "created_at": "2026-07-11T09:41:23.795674+00:00"
+    }
+  },
+  "analytics": {
+    "study_sessions": [],
+    "completed_tasks": [],
+    "pomodoro_sessions": [],
+    "goals": [],
+    "streak": {
+      "current": 1,
+      "longest": 1,
+      "last_study_date": "2026-07-10"
+    }
+  },
+  "user_data": {
+    "a90cb26a-63fe-4628-acd9-e281da87de6b": {
+      "materials": {},
+      "summaries": {},
+      "flashcards": {},
+      "quizzes": {},
+      "quiz_results": [],
+      "schedules": {},
+      "insights": {},
+      "chat_sessions": {},
+      "analytics": {
+        "study_sessions": [],
+        "completed_tasks": [],
+        "pomodoro_sessions": [],
+        "goals": [],
+        "streak": {
+          "current": 0,
+          "longest": 0,
+          "last_study_date": ""
+        }
+      }
+    }
+  }
+}
