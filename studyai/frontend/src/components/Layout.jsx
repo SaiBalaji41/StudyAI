@@ -33,7 +33,7 @@ export default function Layout() {
   const { user, logout } = useAuth();
   const location = useLocation();
 
-  const aiLabel = aiMode === 'groq' ? 'Groq AI' : 'Local AI';
+
 
   return (
     <div className="app-layout">
@@ -83,7 +83,7 @@ export default function Layout() {
             {navItems.find((n) => n.path === location.pathname)?.label || 'StudyAI'}
           </div>
           <div className="top-bar-actions" style={{ display: 'flex', alignItems: 'center', gap: '1rem' }}>
-            <span className="ai-badge" title={`Storage: ${storageMode}`}>{aiLabel}</span>
+
             {user && (
               <div style={{ display: 'flex', alignItems: 'center', gap: '1rem', borderLeft: '1px solid var(--border)', paddingLeft: '1rem' }}>
                 <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', color: 'var(--text)' }}>
