@@ -1,8 +1,23 @@
 import uuid
+from datetime import datetime, timezone
 from typing import Any
 
 from config import SUPABASE_URL, SUPABASE_KEY
 from services.local_storage import local_storage
+
+def _now_iso() -> str:
+    return datetime.now(timezone.utc).isoformat()
+
+
+def _get_current_user_id() -> str:
+    try:
+        from flask import has_app_context, g
+        if has_app_context() and hasattr(g, 'user_id'):
+            return g.user_id
+    except ImportError:
+        pass
+    return "default_user"
+
 
 _supabase_initialized = False
 _db = None
@@ -34,6 +49,10 @@ class StorageService:
     def _save_document(self, collection: str, doc_id: str, data: dict[str, Any]) -> dict[str, Any]:
         if self.use_supabase and _db:
             try:
+                if collection not in ("users", "sessions"):
+                    user_id = _get_current_user_id()
+                    if "user_id" not in data:
+                        data = {**data, "user_id": user_id}
                 _db.table("documents").upsert({
                     "id": doc_id,
                     "collection": collection,
@@ -48,7 +67,13 @@ class StorageService:
             try:
                 response = _db.table("documents").select("data").eq("collection", collection).eq("id", doc_id).execute()
                 if response.data:
-                    return response.data[0]["data"]
+                    data = response.data[0]["data"]
+                    if collection in ("users", "sessions"):
+                        return data
+                    user_id = _get_current_user_id()
+                    doc_user_id = data.get("user_id") or "a90cb26a-63fe-4628-acd9-e281da87de6b"
+                    if doc_user_id == user_id:
+                        return data
             except Exception as e:
                 print(f"Supabase get error: {e}")
         return None
@@ -57,7 +82,13 @@ class StorageService:
         if self.use_supabase and _db:
             try:
                 response = _db.table("documents").select("data").eq("collection", collection).execute()
-                docs = [row["data"] for row in response.data]
+                user_id = _get_current_user_id()
+                docs = []
+                for row in response.data:
+                    data = row["data"]
+                    doc_user_id = data.get("user_id") or "a90cb26a-63fe-4628-acd9-e281da87de6b"
+                    if doc_user_id == user_id:
+                        docs.append(data)
                 docs.sort(key=lambda x: x.get("created_at", ""), reverse=True)
                 return docs
             except Exception as e:
@@ -67,38 +98,86 @@ class StorageService:
     def _delete_document(self, collection: str, doc_id: str) -> bool:
         if self.use_supabase and _db:
             try:
-                _db.table("documents").delete().eq("collection", collection).eq("id", doc_id).execute()
-                return True
+                doc = self._get_document(collection, doc_id)
+                if doc:
+                    _db.table("documents").delete().eq("collection", collection).eq("id", doc_id).execute()
+                    return True
             except Exception as e:
                 print(f"Supabase delete error: {e}")
                 return False
         return False
 
     def create_user(self, user: dict[str, Any]) -> dict[str, Any]:
+        if self.use_supabase:
+            return self._save_document("users", user["id"], user)
         return local_storage.create_user(user)
 
     def update_user(self, user_id: str, updates: dict[str, Any]) -> dict[str, Any] | None:
+        if self.use_supabase:
+            user = self.get_user_by_id(user_id)
+            if user:
+                user.update(updates)
+                self._save_document("users", user_id, user)
+                return user
+            return None
         return local_storage.update_user(user_id, updates)
 
     def delete_user(self, user_id: str) -> bool:
+        if self.use_supabase:
+            if _db:
+                try:
+                    _db.table("documents").delete().eq("collection", "sessions").eq("data->>user_id", user_id).execute()
+                except Exception as e:
+                    print(f"Supabase delete user sessions error: {e}")
+            self._delete_document("users", user_id)
+            return True
         return local_storage.delete_user(user_id)
 
     def get_user_by_id(self, user_id: str) -> dict[str, Any] | None:
+        if self.use_supabase:
+            return self._get_document("users", user_id)
         return local_storage.get_user_by_id(user_id)
 
     def get_user_by_email(self, email: str) -> dict[str, Any] | None:
+        if self.use_supabase and _db:
+            try:
+                response = _db.table("documents").select("data").eq("collection", "users").eq("data->>email", email.lower()).execute()
+                if response.data:
+                    return response.data[0]["data"]
+            except Exception as e:
+                print(f"Supabase get_user_by_email error: {e}")
         return local_storage.get_user_by_email(email)
 
     def get_user_by_username(self, username: str) -> dict[str, Any] | None:
+        if self.use_supabase and _db:
+            try:
+                response = _db.table("documents").select("data").eq("collection", "users").execute()
+                username_lower = username.lower()
+                for row in response.data:
+                    u = row["data"]
+                    if u.get("username", "").lower() == username_lower:
+                        return u
+            except Exception as e:
+                print(f"Supabase get_user_by_username error: {e}")
         return local_storage.get_user_by_username(username)
 
     def create_session(self, token: str, user_id: str) -> None:
+        if self.use_supabase:
+            session_data = {"user_id": user_id, "created_at": _now_iso()}
+            self._save_document("sessions", token, session_data)
+            return
         local_storage.create_session(token, user_id)
 
     def get_session(self, token: str) -> str | None:
+        if self.use_supabase:
+            session = self._get_document("sessions", token)
+            return session["user_id"] if session else None
         return local_storage.get_session(token)
 
     def delete_session(self, token: str) -> None:
+        if self.use_supabase:
+            self._delete_document("sessions", token)
+            return
         local_storage.delete_session(token)
 
     def save_material(self, material: dict[str, Any]) -> dict[str, Any]:
@@ -166,11 +245,15 @@ class StorageService:
     def get_quiz_results(self, material_id: str | None = None) -> list[dict[str, Any]]:
         if self.use_supabase and _db:
             try:
-                query = _db.table("documents").select("data").eq("collection", "quiz_results")
-                if material_id:
-                    query = query.eq("data->>material_id", material_id)
-                response = query.execute()
-                results = [row["data"] for row in response.data]
+                response = _db.table("documents").select("data").eq("collection", "quiz_results").execute()
+                user_id = _get_current_user_id()
+                results = []
+                for row in response.data:
+                    data = row["data"]
+                    doc_user_id = data.get("user_id") or "a90cb26a-63fe-4628-acd9-e281da87de6b"
+                    if doc_user_id == user_id:
+                        if not material_id or data.get("material_id") == material_id:
+                            results.append(data)
                 results.sort(key=lambda r: r.get("completed_at", ""), reverse=True)
                 return results
             except Exception as e:
