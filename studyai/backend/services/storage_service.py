@@ -339,6 +339,18 @@ class StorageService:
     def update_goal(self, goal_id: str, updates: dict[str, Any]) -> dict[str, Any] | None:
         return local_storage.update_goal(goal_id, updates)
 
+    def save_annotations(self, material_id: str, annotations: list[dict[str, Any]]) -> list[dict[str, Any]]:
+        if self.use_supabase:
+            self._save_document("annotations", material_id, {"annotations": annotations})
+            return annotations
+        return local_storage.save_annotations(material_id, annotations)
+
+    def get_annotations(self, material_id: str) -> list[dict[str, Any]]:
+        if self.use_supabase:
+            doc = self._get_document("annotations", material_id)
+            return doc.get("annotations", []) if doc else []
+        return local_storage.get_annotations(material_id)
+
     def get_analytics(self) -> dict[str, Any]:
         if self.use_supabase and _db:
             try:

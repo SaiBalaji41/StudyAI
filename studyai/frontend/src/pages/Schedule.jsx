@@ -64,6 +64,97 @@ export default function Schedule() {
     }
   };
 
+  const handleExportICS = () => {
+    if (!schedule) return;
+    
+    let icsContent = [
+      'BEGIN:VCALENDAR',
+      'VERSION:2.0',
+      'PRODID:-//StudyAI//Study Planner//EN',
+      'CALSCALE:GREGORIAN',
+      'METHOD:PUBLISH'
+    ].join('\r\n') + '\r\n';
+
+    const startDate = new Date(schedule.created_at || new Date());
+    
+    schedule.days?.forEach((day) => {
+      const eventDate = new Date(startDate);
+      eventDate.setDate(startDate.getDate() + (day.day - 1));
+      
+      const year = eventDate.getFullYear();
+      const month = String(eventDate.getMonth() + 1).padStart(2, '0');
+      const dateVal = String(eventDate.getDate()).padStart(2, '0');
+      const dateStr = `${year}${month}${dateVal}`;
+      
+      const nextDay = new Date(eventDate);
+      nextDay.setDate(eventDate.getDate() + 1);
+      const nextYear = nextDay.getFullYear();
+      const nextMonth = String(nextDay.getMonth() + 1).padStart(2, '0');
+      const nextDateVal = String(nextDay.getDate()).padStart(2, '0');
+      const nextDateStr = `${nextYear}${nextMonth}${nextDateVal}`;
+
+      // Export tasks as all-day events
+      day.tasks?.forEach((task, taskIdx) => {
+        const uid = `task_${schedule.id}_${day.day}_${taskIdx}@studyai.com`;
+        const summary = `[StudyAI] ${task.title}`;
+        const description = `${task.description || ''}\\nPriority: ${task.priority || 'medium'}`;
+        
+        icsContent += [
+          'BEGIN:VEVENT',
+          `UID:${uid}`,
+          `DTSTAMP:${dateStr}T000000Z`,
+          `DTSTART;VALUE=DATE:${dateStr}`,
+          `DTEND;VALUE=DATE:${nextDateStr}`,
+          `SUMMARY:${summary}`,
+          `DESCRIPTION:${description}`,
+          'END:VEVENT'
+        ].join('\r\n') + '\r\n';
+      });
+
+      // Export time slots as calendar events
+      day.time_slots?.forEach((slot, slotIdx) => {
+        const uid = `slot_${schedule.id}_${day.day}_${slotIdx}@studyai.com`;
+        const summary = `[StudyAI Focus] ${slot.task}`;
+        
+        let startHour = 10;
+        let startMin = 0;
+        let endHour = 11;
+        let endMin = 0;
+        
+        const timeMatch = slot.time?.match(/(\d{1,2}):(\d{2})/);
+        if (timeMatch) {
+          startHour = parseInt(timeMatch[1], 10);
+          startMin = parseInt(timeMatch[2], 10);
+          endHour = startHour + 1;
+        }
+        
+        const pad = (num) => String(num).padStart(2, '0');
+        const startStr = `${dateStr}T${pad(startHour)}${pad(startMin)}00Z`;
+        const endStr = `${dateStr}T${pad(endHour)}${pad(endMin)}00Z`;
+        
+        icsContent += [
+          'BEGIN:VEVENT',
+          `UID:${uid}`,
+          `DTSTAMP:${dateStr}T000000Z`,
+          `DTSTART:${startStr}`,
+          `DTEND:${endStr}`,
+          `SUMMARY:${summary}`,
+          'END:VEVENT'
+        ].join('\r\n') + '\r\n';
+      });
+    });
+    
+    icsContent += 'END:VCALENDAR';
+    
+    const blob = new Blob([icsContent], { type: 'text/calendar;charset=utf-8' });
+    const url = window.URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = `schedule_${schedule.id}.ics`;
+    a.click();
+    window.URL.revokeObjectURL(url);
+  };
+
   const loadSchedule = (s) => {
     setSchedule(s);
     setSelectedId(s.material_id);
@@ -116,7 +207,10 @@ export default function Schedule() {
               <h3>{schedule.title}</h3>
               {schedule.overview && <p style={{ color: 'var(--text-muted)', marginTop: '0.5rem' }}>{schedule.overview}</p>}
             </div>
-            <button className="btn btn-secondary" onClick={handleExport}>Export JSON</button>
+            <div style={{ display: 'flex', gap: '0.5rem' }}>
+              <button className="btn btn-secondary" onClick={handleExport}>Export JSON</button>
+              <button className="btn btn-primary" onClick={handleExportICS}>Export iCalendar (.ics)</button>
+            </div>
           </div>
 
           {totalTasks > 0 && (

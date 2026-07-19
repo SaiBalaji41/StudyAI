@@ -127,6 +127,7 @@ def update_profile():
     data = request.json or {}
     
     username = data.get("username")
+    selected_model_provider = data.get("selected_model_provider")
     
     updates = {}
     if username:
@@ -138,6 +139,15 @@ def update_profile():
         if existing and existing["id"] != user_id:
             return jsonify({"error": "Username already taken"}), 400
         updates["username"] = username
+
+    if selected_model_provider is not None:
+        updates["selected_model_provider"] = selected_model_provider.strip().lower()
+
+    for provider in ("groq", "openai", "gemini", "claude", "deepseek"):
+        key_field = f"{provider}_api_key"
+        val = data.get(key_field)
+        if val is not None:
+            updates[key_field] = val.strip()
         
     if updates:
         updated_user = storage_service.update_user(user_id, updates)

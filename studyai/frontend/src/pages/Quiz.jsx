@@ -56,7 +56,17 @@ export default function Quiz() {
     setSubmitting(true);
     setError('');
     try {
-      const res = await submitQuiz(quiz.id, answers);
+      // Format any array answers as a comma-separated string for the backend evaluation API
+      const formattedAnswers = {};
+      Object.keys(answers).forEach((qid) => {
+        const ans = answers[qid];
+        if (Array.isArray(ans)) {
+          formattedAnswers[qid] = ans.join(', ');
+        } else {
+          formattedAnswers[qid] = ans;
+        }
+      });
+      const res = await submitQuiz(quiz.id, formattedAnswers);
       setResult(res.data.result);
     } catch (err) {
       setError(err.response?.data?.error || 'Quiz submission failed');
@@ -65,13 +75,37 @@ export default function Quiz() {
     }
   };
 
-  const selectAnswer = (questionId, answer) => {
+  const selectAnswer = (questionId, option, isMcq) => {
     if (result) return;
-    setAnswers({ ...answers, [questionId]: answer });
+    if (isMcq) {
+      const current = answers[questionId];
+      let newAnswers;
+      if (Array.isArray(current)) {
+        if (current.includes(option)) {
+          newAnswers = current.filter((item) => item !== option);
+        } else {
+          newAnswers = [...current, option];
+        }
+      } else if (typeof current === 'string' && current) {
+        if (current === option) {
+          newAnswers = [];
+        } else {
+          newAnswers = [current, option];
+        }
+      } else {
+        newAnswers = [option];
+      }
+      setAnswers({ ...answers, [questionId]: newAnswers });
+    } else {
+      setAnswers({ ...answers, [questionId]: option });
+    }
   };
 
   const allAnswered = quiz?.questions?.length > 0 && quiz.questions.every((q) => {
     const ans = answers[q.id];
+    if (Array.isArray(ans)) {
+      return ans.length > 0;
+    }
     return ans !== undefined && ans !== null && String(ans).trim() !== '';
   });
 
@@ -121,7 +155,12 @@ export default function Quiz() {
           {quiz.questions.map((q, idx) => (
             <div key={q.id} className="quiz-question">
               <h4>Q{idx + 1}. {q.question}</h4>
-              <span className="badge badge-medium" style={{ marginTop: '0.5rem' }}>{q.topic}</span>
+              <div style={{ display: 'flex', gap: '0.5rem', alignItems: 'center', marginTop: '0.5rem' }}>
+                <span className="badge badge-medium">{q.topic}</span>
+                {(q.type === 'mcq' || quiz.quiz_type === 'mcq') && (
+                  <span style={{ fontSize: '0.85rem', color: 'var(--text-muted)' }}>(Select one or more correct options)</span>
+                )}
+              </div>
 
               {q.type === 'short_answer' || quiz.quiz_type === 'short_answer' ? (
                 <div className="form-group" style={{ marginTop: '1rem' }}>
@@ -134,15 +173,21 @@ export default function Quiz() {
                 </div>
               ) : (
                 <div className="quiz-options">
-                  {(q.options || []).map((opt) => (
-                    <button
-                      key={opt}
-                      className={`quiz-option ${answers[q.id] === opt ? 'selected' : ''}`}
-                      onClick={() => selectAnswer(q.id, opt)}
-                    >
-                      {opt}
-                    </button>
-                  ))}
+                  {(q.options || []).map((opt) => {
+                    const isSelected = Array.isArray(answers[q.id])
+                      ? answers[q.id].includes(opt)
+                      : answers[q.id] === opt;
+                    const isMcq = q.type === 'mcq' || quiz.quiz_type === 'mcq';
+                    return (
+                      <button
+                        key={opt}
+                        className={`quiz-option ${isSelected ? 'selected' : ''}`}
+                        onClick={() => selectAnswer(q.id, opt, isMcq)}
+                      >
+                        {opt}
+                      </button>
+                    );
+                  })}
                 </div>
               )}
             </div>

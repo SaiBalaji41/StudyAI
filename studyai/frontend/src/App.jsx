@@ -20,6 +20,7 @@ import Achievements from './pages/Achievements';
 import Settings from './pages/Settings';
 import Login from './pages/Login';
 import Signup from './pages/Signup';
+import Landing from './pages/Landing';
 
 export default function App() {
   return (
@@ -28,12 +29,13 @@ export default function App() {
         <ToastProvider>
           <AuthProvider>
             <Routes>
+              <Route path="/" element={<Landing />} />
               <Route path="/login" element={<Login />} />
               <Route path="/signup" element={<Signup />} />
               
               <Route element={<ProtectedRoute />}>
                 <Route element={<Layout />}>
-                  <Route index element={<Dashboard />} />
+                  <Route path="dashboard" element={<Dashboard />} />
                   <Route path="library" element={<Library />} />
                   <Route path="upload" element={<Upload />} />
                   <Route path="summary" element={<Summary />} />

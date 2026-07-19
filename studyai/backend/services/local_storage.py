@@ -21,6 +21,7 @@ def _default_user_data() -> dict[str, Any]:
         "schedules": {},
         "insights": {},
         "chat_sessions": {},
+        "annotations": {},
         "analytics": {
             "study_sessions": [],
             "completed_tasks": [],
@@ -360,6 +361,17 @@ class LocalStorage:
                 _save_db(db)
                 return goals[i]
         return None
+
+    def save_annotations(self, material_id: str, annotations: list[dict[str, Any]]) -> list[dict[str, Any]]:
+        db = _load_db()
+        udb = _get_user_db(db)
+        udb.setdefault("annotations", {})[material_id] = annotations
+        _save_db(db)
+        return annotations
+
+    def get_annotations(self, material_id: str) -> list[dict[str, Any]]:
+        udb = _get_user_db(_load_db())
+        return udb.setdefault("annotations", {}).get(material_id, [])
 
     def get_analytics(self) -> dict[str, Any]:
         udb = _get_user_db(_load_db())

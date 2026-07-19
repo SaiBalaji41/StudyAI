@@ -8,7 +8,7 @@ import AchievementsPanel from '../components/AchievementsPanel';
 import { SkeletonCard } from '../components/Skeleton';
 import { 
   IconBook, IconQuiz, IconTrophy, IconFocus, IconUpload, IconSummary, 
-  IconCards, IconTutor, IconInsight, IconSparkle 
+  IconCards, IconTutor, IconInsight 
 } from '../components/Icons';
 
 export default function Dashboard() {
@@ -67,7 +67,7 @@ export default function Dashboard() {
 
       {overview.study_streak > 0 && (
         <div className="streak-banner" style={{ marginBottom: '1.5rem' }}>
-          <span className="streak-fire"><IconSparkle size={24} /></span>
+          <span className="streak-fire">🔥</span>
           <div>
             <div className="streak-count">{overview.study_streak} Day Streak!</div>
             <div style={{ fontSize: '0.8rem', color: 'var(--text-muted)' }}>
@@ -76,6 +76,38 @@ export default function Dashboard() {
           </div>
         </div>
       )}
+
+      {/* XP Level Bar */}
+      <div className="card" style={{ marginBottom: '1.5rem', display: 'flex', alignItems: 'center', justifyContent: 'space-between', flexWrap: 'wrap', gap: '1rem' }}>
+        <div style={{ display: 'flex', alignItems: 'center', gap: '1rem' }}>
+          <div style={{
+            background: 'var(--primary)', color: '#fff', width: '56px', height: '56px',
+            borderRadius: '50%', display: 'flex', alignItems: 'center', justifyContent: 'center',
+            fontSize: '1.2rem', fontWeight: '800', boxShadow: '0 4px 12px rgba(124, 58, 237, 0.4)'
+          }}>
+            Lvl {overview.level || 1}
+          </div>
+          <div>
+            <h4 style={{ margin: 0, fontSize: '1.1rem', fontWeight: 'bold' }}>XP Level Progression</h4>
+            <p style={{ color: 'var(--text-muted)', fontSize: '0.8rem', margin: 0 }}>
+              {(overview.xp || 0)} Total XP earned · Keep reviewing to level up!
+            </p>
+          </div>
+        </div>
+        <div style={{ flex: 1, minWidth: '240px', maxWidth: '400px' }}>
+          <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: '0.8rem', color: 'var(--text-muted)', marginBottom: '0.25rem' }}>
+            <span>{(overview.xp || 0) % 1000} / 1000 XP</span>
+            <span>{Math.floor(((overview.xp || 0) % 1000) / 10)}%</span>
+          </div>
+          <div style={{ width: '100%', height: '8px', background: 'rgba(255,255,255,0.08)', borderRadius: '10px', overflow: 'hidden' }}>
+            <div style={{
+              width: `${Math.max(5, ((overview.xp || 0) % 1000) / 10)}%`,
+              height: '100%', background: 'linear-gradient(90deg, var(--primary) 0%, var(--primary-light) 100%)',
+              borderRadius: '10px', transition: 'width 0.5s ease-out'
+            }} />
+          </div>
+        </div>
+      </div>
 
       <div className="card-grid">
         <div className="stat-card">
@@ -99,6 +131,7 @@ export default function Dashboard() {
           <div className="stat-label">Focus Time</div>
         </div>
       </div>
+
 
       <div className="two-col" style={{ marginBottom: '1.5rem' }}>
         <div className="card">

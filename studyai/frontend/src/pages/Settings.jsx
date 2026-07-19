@@ -2,7 +2,7 @@ import { useState } from 'react';
 import { useAuth } from '../context/AuthContext';
 import { authUpdateProfile, authUpdatePassword, authDeleteAccount } from '../services/api';
 import { useToast } from '../context/ToastContext';
-import { Loader2, Save, KeyRound, User, Mail, AtSign, Trash2, AlertTriangle, X } from 'lucide-react';
+import { Loader2, Save, KeyRound, User, Mail, AtSign, Trash2, AlertTriangle, X, Brain } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 
 export default function Settings() {
@@ -12,7 +12,13 @@ export default function Settings() {
 
   const [profileLoading, setProfileLoading] = useState(false);
   const [profileData, setProfileData] = useState({
-    username: user?.username || ''
+    username: user?.username || '',
+    selected_model_provider: user?.selected_model_provider || 'groq',
+    groq_api_key: user?.groq_api_key || '',
+    openai_api_key: user?.openai_api_key || '',
+    gemini_api_key: user?.gemini_api_key || '',
+    claude_api_key: user?.claude_api_key || '',
+    deepseek_api_key: user?.deepseek_api_key || '',
   });
 
   const [passwordLoading, setPasswordLoading] = useState(false);
@@ -121,6 +127,62 @@ export default function Settings() {
             <button type="submit" className="btn btn-primary" disabled={profileLoading} style={{ alignSelf: 'flex-start', marginTop: '1rem' }}>
               {profileLoading ? <Loader2 className="spin" size={18} /> : <Save size={18} />}
               Save Profile
+            </button>
+          </form>
+        </div>
+
+        {/* AI Engine Settings */}
+        <div className="card" style={{ padding: '2rem', background: 'var(--card-bg)', borderRadius: '12px', border: '1px solid var(--border)' }}>
+          <h2 style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', marginBottom: '1.5rem', fontSize: '1.2rem' }}>
+            <Brain size={20} className="text-primary" /> AI Model & Key Configuration
+          </h2>
+          <form onSubmit={handleProfileSubmit} style={{ display: 'flex', flexDirection: 'column', gap: '1rem' }}>
+            <div className="form-group">
+              <label>Default AI Provider</label>
+              <select 
+                value={profileData.selected_model_provider}
+                onChange={e => setProfileData({...profileData, selected_model_provider: e.target.value})}
+                style={{ 
+                  width: '100%', padding: '0.75rem', 
+                  background: 'var(--select-bg)', border: '1px solid var(--border)', 
+                  borderRadius: 'var(--radius-sm)', color: 'var(--text)',
+                  outline: 'none'
+                }}
+              >
+                <option value="groq">Groq (Llama 3.3)</option>
+                <option value="openai">OpenAI (GPT-4o / Mini)</option>
+                <option value="gemini">Google Gemini (Gemini 2.5)</option>
+                <option value="claude">Anthropic Claude (Claude 3.5)</option>
+                <option value="deepseek">DeepSeek (deepseek-chat)</option>
+              </select>
+              <p style={{ fontSize: '0.75rem', color: 'var(--text-muted)', marginTop: '0.25rem' }}>
+                Select the default provider for your study summaries, flashcards, quizzes, and chat tutor.
+              </p>
+            </div>
+
+            {['groq', 'openai', 'gemini', 'claude', 'deepseek'].map((provider) => {
+              const keyField = `${provider}_api_key`;
+              const label = provider === 'groq' ? 'Groq' : provider === 'openai' ? 'OpenAI' : provider === 'gemini' ? 'Gemini' : provider === 'claude' ? 'Claude' : 'DeepSeek';
+              return (
+                <div className="form-group" key={provider}>
+                  <label>{label} API Key (Optional)</label>
+                  <div className="input-with-icon" style={{ position: 'relative' }}>
+                    <KeyRound size={18} />
+                    <input 
+                      type="password" 
+                      placeholder={`Enter custom ${label} API key`}
+                      value={profileData[keyField]} 
+                      onChange={e => setProfileData({...profileData, [keyField]: e.target.value})}
+                      style={{ width: '100%' }}
+                    />
+                  </div>
+                </div>
+              );
+            })}
+
+            <button type="submit" className="btn btn-primary" disabled={profileLoading} style={{ alignSelf: 'flex-start', marginTop: '1rem' }}>
+              {profileLoading ? <Loader2 className="spin" size={18} /> : <Save size={18} />}
+              Save Configuration
             </button>
           </form>
         </div>

@@ -44,6 +44,29 @@ def get_analytics():
     streak = analytics_data.get("streak", {"current": 0, "longest": 0, "last_study_date": ""})
     goals = analytics_data.get("goals", [])
 
+    # Calculate dynamic daily study heatmap (activity dates count)
+    from collections import Counter
+    activity_dates = []
+
+    for result in quiz_results:
+        d_str = result.get("completed_at", "")[:10]
+        if d_str:
+            activity_dates.append(d_str)
+
+    for sess in analytics_data.get("pomodoro_sessions", []):
+        d_str = sess.get("completed_at", "")[:10]
+        if d_str:
+            activity_dates.append(d_str)
+
+    materials = storage_service.list_materials()
+    for m in materials:
+        d_str = m.get("created_at", "")[:10]
+        if d_str:
+            activity_dates.append(d_str)
+
+    heatmap_counter = Counter(activity_dates)
+    study_heatmap = [{"date": k, "count": v} for k, v in heatmap_counter.items()]
+
     return jsonify({
         "overview": {
             "materials_count": metrics["materials_count"],
@@ -61,6 +84,8 @@ def get_analytics():
             "tutor_messages": metrics["tutor_messages"],
             "achievements_unlocked": ach_summary["unlocked_count"],
             "achievements_total": ach_summary["total"],
+            "xp": metrics.get("xp", 0),
+            "level": metrics.get("level", 1),
         },
         "scores_over_time": scores_over_time,
         "weak_topics_breakdown": weak_topics_breakdown,
@@ -72,5 +97,6 @@ def get_analytics():
         "achievement_summary": ach_summary,
         "goals": goals,
         "streak": streak,
+        "study_heatmap": study_heatmap,
         "storage_mode": storage_service.storage_mode,
     })

@@ -25,6 +25,27 @@ export default function PomodoroTimer() {
     setSecondsLeft(p.minutes * 60);
   }, []);
 
+  const playBeep = () => {
+    try {
+      const audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+      const oscillator = audioCtx.createOscillator();
+      const gainNode = audioCtx.createGain();
+      
+      oscillator.connect(gainNode);
+      gainNode.connect(audioCtx.destination);
+      
+      oscillator.type = 'sine';
+      oscillator.frequency.value = 520;
+      gainNode.gain.setValueAtTime(0.5, audioCtx.currentTime);
+      gainNode.gain.exponentialRampToValueAtTime(0.01, audioCtx.currentTime + 0.8);
+      
+      oscillator.start(audioCtx.currentTime);
+      oscillator.stop(audioCtx.currentTime + 0.8);
+    } catch (e) {
+      console.warn("AudioContext failed", e);
+    }
+  };
+
   useEffect(() => {
     if (running && secondsLeft > 0) {
       intervalRef.current = setInterval(() => {
@@ -33,6 +54,7 @@ export default function PomodoroTimer() {
     } else if (secondsLeft === 0 && running) {
       setRunning(false);
       clearInterval(intervalRef.current);
+      playBeep();
       if (preset.type === 'focus') {
         setSessionsCompleted((c) => c + 1);
         recordPomodoro({ duration_minutes: preset.minutes, type: 'focus' }).catch(() => {});

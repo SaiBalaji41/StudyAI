@@ -47,6 +47,8 @@ export const uploadMaterial = (formData) =>
 export const getMaterials = () => api.get('/materials/');
 export const deleteMaterial = (id) => api.delete(`/materials/${id}`);
 export const searchMaterials = (q) => api.get('/materials/search', { params: { q } });
+export const getAnnotations = (id) => api.get(`/materials/${id}/annotations`);
+export const saveAnnotations = (id, annotations) => api.post(`/materials/${id}/annotations`, { annotations });
 
 export const generateSummary = (materialId) => api.post(`/summary/${materialId}`);
 export const getSummary = (materialId) => api.get(`/summary/${materialId}`);
@@ -60,6 +62,8 @@ export const generateFlashcards = (materialId, count = 10) =>
 export const getFlashcards = (materialId) => api.get(`/flashcards/${materialId}`);
 export const updateFlashcardProgress = (materialId, cardId, known) =>
   api.put(`/flashcards/${materialId}/progress`, { card_id: cardId, known });
+export const reviewFlashcard = (materialId, cardId, rating) =>
+  api.put(`/flashcards/${materialId}/review`, { card_id: cardId, rating });
 
 export const generateQuiz = (materialId, quizType, numQuestions) =>
   api.post(`/quiz/generate/${materialId}`, { quiz_type: quizType, num_questions: numQuestions });

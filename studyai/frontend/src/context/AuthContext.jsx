@@ -34,7 +34,7 @@ export const AuthProvider = ({ children }) => {
       localStorage.setItem('studyai_token', data.token);
       setUser(data.user);
       addToast('success', 'Logged in successfully');
-      navigate('/');
+      navigate('/dashboard');
       return { success: true };
     } catch (error) {
       const msg = error.response?.data?.error || 'Login failed';

@@ -349,6 +349,72 @@
           "last_study_date": ""
         }
       }
+    },
+    "9f8df105-9502-453d-9767-5fb972d3f17e": {
+      "materials": {},
+      "summaries": {},
+      "flashcards": {},
+      "quizzes": {},
+      "quiz_results": [],
+      "schedules": {},
+      "insights": {},
+      "chat_sessions": {},
+      "annotations": {},
+      "analytics": {
+        "study_sessions": [],
+        "completed_tasks": [],
+        "pomodoro_sessions": [],
+        "goals": [],
+        "streak": {
+          "current": 1,
+          "longest": 1,
+          "last_study_date": "2026-07-17"
+        }
+      }
+    },
+    "7ae742ba-fc1e-4ab8-bbfd-2563c0723117": {
+      "materials": {},
+      "summaries": {},
+      "flashcards": {},
+      "quizzes": {},
+      "quiz_results": [],
+      "schedules": {},
+      "insights": {},
+      "chat_sessions": {},
+      "annotations": {},
+      "analytics": {
+        "study_sessions": [],
+        "completed_tasks": [],
+        "pomodoro_sessions": [],
+        "goals": [],
+        "streak": {
+          "current": 1,
+          "longest": 1,
+          "last_study_date": "2026-07-17"
+        }
+      }
+    },
+    "66455b49-b41f-4494-8124-4b981a9d89a3": {
+      "materials": {},
+      "summaries": {},
+      "flashcards": {},
+      "quizzes": {},
+      "quiz_results": [],
+      "schedules": {},
+      "insights": {},
+      "chat_sessions": {},
+      "annotations": {},
+      "analytics": {
+        "study_sessions": [],
+        "completed_tasks": [],
+        "pomodoro_sessions": [],
+        "goals": [],
+        "streak": {
+          "current": 1,
+          "longest": 1,
+          "last_study_date": "2026-07-19"
+        }
+      }
     }
   }
 }

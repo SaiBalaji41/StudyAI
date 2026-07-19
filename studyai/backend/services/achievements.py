@@ -210,13 +210,28 @@ def build_metrics(data: dict[str, Any]) -> dict[str, Any]:
     perfect_quizzes = sum(1 for r in quiz_results if r.get("percentage", 0) >= 100)
     focus_minutes = sum(s.get("duration_minutes", 0) for s in pomodoro_sessions if s.get("type") == "focus")
     focus_sessions = sum(1 for s in pomodoro_sessions if s.get("type") == "focus")
+    
+    materials_count = data.get("materials_count", 0)
+    summaries_count = data.get("summaries_count", 0)
+    flashcards_count = data.get("flashcards_count", 0)
+    schedules_count = data.get("schedules_count", 0)
+    insights_count = data.get("insights_count", 0)
+    tutor_messages = _count_tutor_messages(chat_sessions)
+    goals_completed = sum(1 for g in goals if g.get("completed"))
+    
+    # Calculate XP
+    xp = (materials_count * 50) + (summaries_count * 100) + (flashcards_count * 100) + \
+         (schedules_count * 100) + (insights_count * 50) + (len(quiz_results) * 200) + \
+         (focus_minutes * 10) + (tutor_messages * 10) + (goals_completed * 300)
+    
+    level = (xp // 1000) + 1
 
     return {
-        "materials_count": data.get("materials_count", 0),
-        "summaries_count": data.get("summaries_count", 0),
-        "flashcards_count": data.get("flashcards_count", 0),
-        "schedules_count": data.get("schedules_count", 0),
-        "insights_count": data.get("insights_count", 0),
+        "materials_count": materials_count,
+        "summaries_count": summaries_count,
+        "flashcards_count": flashcards_count,
+        "schedules_count": schedules_count,
+        "insights_count": insights_count,
         "quizzes_taken": len(quiz_results),
         "average_score": avg_score,
         "perfect_quizzes": perfect_quizzes,
@@ -224,9 +239,11 @@ def build_metrics(data: dict[str, Any]) -> dict[str, Any]:
         "longest_streak": streak.get("longest", 0),
         "focus_minutes": focus_minutes,
         "pomodoro_sessions": focus_sessions,
-        "tutor_messages": _count_tutor_messages(chat_sessions),
+        "tutor_messages": tutor_messages,
         "goals_count": len(goals),
-        "goals_completed": sum(1 for g in goals if g.get("completed")),
+        "goals_completed": goals_completed,
+        "xp": xp,
+        "level": level,
     }
 
 

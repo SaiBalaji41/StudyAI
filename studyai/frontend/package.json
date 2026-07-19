@@ -9,16 +9,21 @@
     "preview": "vite preview"
   },
   "dependencies": {
+    "autoprefixer": "^10.5.4",
     "axios": "^1.7.2",
     "chart.js": "^4.4.3",
+    "framer-motion": "^12.42.2",
     "lucide-react": "^1.24.0",
+    "postcss": "^8.5.19",
     "react": "^18.3.1",
     "react-chartjs-2": "^5.2.0",
     "react-dom": "^18.3.1",
     "react-markdown": "^9.0.1",
-    "react-router-dom": "^6.23.1"
+    "react-router-dom": "^6.23.1",
+    "tailwindcss": "^4.3.3"
   },
   "devDependencies": {
+    "@tailwindcss/postcss": "^4.3.3",
     "@types/react": "^18.3.3",
     "@types/react-dom": "^18.3.0",
     "@vitejs/plugin-react": "^4.3.1",

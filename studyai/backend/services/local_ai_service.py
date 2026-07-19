@@ -101,10 +101,10 @@ class LocalAIService:
             })
         return cards[:count]
 
-    def generate_quiz(self, content: str, quiz_type: str, num_questions: int) -> list[dict[str, Any]]:
+    def generate_quiz(self, content: str, quiz_type: str, num_questions: int, weak_topics: list[str] = None) -> list[dict[str, Any]]:
         sents = _sentences(content) or _chunks(content, 90)
         questions = []
-        topics = _keywords(content, num_questions) or ["General"]
+        topics = weak_topics or _keywords(content, num_questions) or ["General"]
 
         for i in range(num_questions):
             sent = sents[i % len(sents)] if sents else content[:100]

@@ -11,7 +11,7 @@ import {
 } from './Icons';
 
 const navItems = [
-  { path: '/', label: 'Dashboard', Icon: IconDashboard },
+  { path: '/dashboard', label: 'Dashboard', Icon: IconDashboard },
   { path: '/library', label: 'Library', Icon: IconBook },
   { path: '/upload', label: 'Upload', Icon: IconUpload },
   { path: '/summary', label: 'Summary', Icon: IconSummary },
@@ -54,7 +54,7 @@ export default function Layout() {
               <li key={path}>
                 <NavLink
                   to={path}
-                  end={path === '/'}
+                  end={path === '/dashboard'}
                   className={({ isActive }) => (isActive ? 'active' : '')}
                   onClick={() => setSidebarOpen(false)}
                 >

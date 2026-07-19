@@ -23,11 +23,23 @@ def generate_quiz(material_id: str):
         data = request.get_json(silent=True) or {}
         quiz_type = data.get("quiz_type", "mcq")
         num_questions = min(max(int(data.get("num_questions", 5)), 3), 20)
+        adaptive = data.get("adaptive", False)
 
         if quiz_type not in ("mcq", "true_false", "short_answer"):
             return jsonify({"error": "Invalid quiz_type. Use: mcq, true_false, short_answer"}), 400
 
-        questions = ai_service.generate_quiz(material["content"], quiz_type, num_questions)
+        weak_topics = []
+        if adaptive:
+            quiz_results = storage_service.get_quiz_results(material_id)
+            for res in quiz_results:
+                for wt in res.get("weak_topics", []):
+                    topic = wt.get("topic")
+                    if topic and topic not in weak_topics:
+                        weak_topics.append(topic)
+
+        questions = ai_service.generate_quiz(
+            material["content"], quiz_type, num_questions, weak_topics=weak_topics if weak_topics else None
+        )
         quiz_id = str(uuid.uuid4())
 
         quiz = {
@@ -85,7 +97,12 @@ def submit_quiz(quiz_id: str):
                     if score >= 70:
                         is_correct = True
             else:
-                is_correct = user_answer.lower() == correct_answer.lower()
+                if q_type == "mcq":
+                    user_options = {o.strip().lower() for o in user_answer.split(",")} if user_answer else set()
+                    correct_options = {o.strip().lower() for o in correct_answer.split(",")} if correct_answer else set()
+                    is_correct = user_options == correct_options and len(user_options) > 0
+                else:
+                    is_correct = user_answer.lower().strip() == correct_answer.lower().strip()
                 score = 100 if is_correct else 0
 
             if is_correct:

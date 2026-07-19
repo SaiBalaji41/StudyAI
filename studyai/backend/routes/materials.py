@@ -18,6 +18,8 @@ def upload_material():
     try:
         title = request.form.get("title", "").strip()
         raw_text = request.form.get("text", "").strip()
+        url = request.form.get("url", "").strip()
+        youtube_url = request.form.get("youtube_url", "").strip()
         file = request.files.get("file")
 
         material_id = str(uuid.uuid4())
@@ -47,8 +49,21 @@ def upload_material():
             source_type = "text"
             if not title:
                 title = "Pasted Text Material"
+                
+        elif url:
+            content = file_processor.extract_from_url(url)
+            source_type = "url"
+            if not title:
+                title = f"Web Page: {url.split('//')[-1].split('/')[0]}"
+                
+        elif youtube_url:
+            content = file_processor.extract_from_youtube(youtube_url)
+            source_type = "youtube"
+            if not title:
+                video_id = youtube_url.split("v=")[-1].split("&")[0] if "v=" in youtube_url else youtube_url.split("/")[-1].split("?")[0]
+                title = f"YouTube Video ({video_id})"
         else:
-            return jsonify({"error": "Provide a file or pasted text content"}), 400
+            return jsonify({"error": "Provide a file, pasted text, web URL, or YouTube URL"}), 400
 
         if not content:
             return jsonify({"error": "Could not extract content from the uploaded material"}), 400
@@ -148,3 +163,17 @@ def delete_material(material_id: str):
     if storage_service.delete_material(material_id):
         return jsonify({"message": "Material deleted successfully"})
     return jsonify({"error": "Material not found"}), 404
+
+
+@materials_bp.route("/<material_id>/annotations", methods=["GET"])
+def get_annotations(material_id: str):
+    annotations = storage_service.get_annotations(material_id)
+    return jsonify({"annotations": annotations})
+
+
+@materials_bp.route("/<material_id>/annotations", methods=["POST"])
+def save_annotations(material_id: str):
+    data = request.get_json(silent=True) or {}
+    annotations = data.get("annotations", [])
+    saved = storage_service.save_annotations(material_id, annotations)
+    return jsonify({"message": "Annotations saved successfully", "annotations": saved})
