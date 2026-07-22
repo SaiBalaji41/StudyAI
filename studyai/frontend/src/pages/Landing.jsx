@@ -10,14 +10,6 @@ export default function Landing() {
   const { user } = useAuth();
   const { theme, toggleTheme } = useTheme();
 
-  const stats = [
-    { value: '50k+', label: 'Active Students' },
-    { value: '1.2M+', label: 'Materials Summarized' },
-    { value: '98.4%', label: 'Score Improvement' },
-    { value: '150k+', label: 'Flashcards Reviewed' }
-  ];
-
-
   return (
     <div className="landing-container" style={{ minHeight: '100vh', background: 'var(--bg)', position: 'relative' }}>
       {/* Header */}
@@ -102,24 +94,6 @@ export default function Landing() {
                 Start Free Trial <ArrowRight size={18} />
               </Link>
           )}
-        </div>
-      </section>
-
-      {/* Stats Counter Section */}
-      <section style={{
-        padding: '3rem 2rem', borderTop: '1px solid var(--border)', borderBottom: '1px solid var(--border)',
-        background: 'rgba(255, 255, 255, 0.02)', backdropFilter: 'blur(5px)'
-      }}>
-        <div style={{
-          maxWidth: '1100px', margin: '0 auto', display: 'grid',
-          gridTemplateColumns: 'repeat(auto-fit, minmax(220px, 1fr))', gap: '2rem', textAlign: 'center'
-        }}>
-          {stats.map((stat, i) => (
-            <div key={i}>
-              <h3 style={{ fontSize: '2.5rem', fontWeight: '800', color: 'var(--primary-light)', marginBottom: '0.25rem' }}>{stat.value}</h3>
-              <p style={{ color: 'var(--text-muted)', fontSize: '0.95rem' }}>{stat.label}</p>
-            </div>
-          ))}
         </div>
       </section>
 
