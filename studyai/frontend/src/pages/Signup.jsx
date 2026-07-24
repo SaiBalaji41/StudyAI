@@ -1,7 +1,7 @@
 import { useState } from 'react';
 import { useAuth } from '../context/AuthContext';
 import { Link } from 'react-router-dom';
-import { ArrowRight, Lock, User, Mail, UserPlus, Loader2 } from 'lucide-react';
+import { ArrowRight, Lock, User, Mail, UserPlus, Loader2, Eye, EyeOff } from 'lucide-react';
 import AnimatedAuthBackground from '../components/AnimatedAuthBackground';
 
 export default function Signup() {
@@ -14,6 +14,8 @@ export default function Signup() {
     confirm_password: ''
   });
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [showPassword, setShowPassword] = useState(false);
+  const [showConfirmPassword, setShowConfirmPassword] = useState(false);
   const [error, setError] = useState('');
 
   const handleChange = (e) => {
@@ -125,15 +127,36 @@ export default function Signup() {
                 <div style={{ position: 'relative' }}>
                   <Lock size={18} style={{ position: 'absolute', left: '1rem', top: '50%', transform: 'translateY(-50%)', color: 'var(--text-muted)' }} />
                   <input 
-                    type="password" name="password"
+                    type={showPassword ? 'text' : 'password'} name="password"
                     value={formData.password} onChange={handleChange}
                     placeholder="Password" required
                     style={{ 
-                      width: '100%', padding: '0.75rem 1rem 0.75rem 2.75rem', 
+                      width: '100%', padding: '0.75rem 2.75rem 0.75rem 2.75rem', 
                       background: 'var(--select-bg)', border: '1px solid var(--border)', 
                       borderRadius: 'var(--radius-sm)', color: 'var(--text)', outline: 'none'
                     }}
                   />
+                  {formData.password.length > 0 && (
+                    <button
+                      type="button"
+                      onClick={() => setShowPassword(!showPassword)}
+                      style={{
+                        position: 'absolute',
+                        right: '0.75rem',
+                        top: '50%',
+                        transform: 'translateY(-50%)',
+                        background: 'none',
+                        border: 'none',
+                        padding: 0,
+                        cursor: 'pointer',
+                        color: 'var(--text-muted)',
+                        display: 'flex',
+                        alignItems: 'center'
+                      }}
+                    >
+                      {showPassword ? <EyeOff size={18} /> : <Eye size={18} />}
+                    </button>
+                  )}
                 </div>
               </div>
               <div style={{ flex: 1 }}>
@@ -141,15 +164,36 @@ export default function Signup() {
                 <div style={{ position: 'relative' }}>
                   <Lock size={18} style={{ position: 'absolute', left: '1rem', top: '50%', transform: 'translateY(-50%)', color: 'var(--text-muted)' }} />
                   <input 
-                    type="password" name="confirm_password"
+                    type={showConfirmPassword ? 'text' : 'password'} name="confirm_password"
                     value={formData.confirm_password} onChange={handleChange}
                     placeholder="Confirm" required
                     style={{ 
-                      width: '100%', padding: '0.75rem 1rem 0.75rem 2.75rem', 
+                      width: '100%', padding: '0.75rem 2.75rem 0.75rem 2.75rem', 
                       background: 'var(--select-bg)', border: '1px solid var(--border)', 
                       borderRadius: 'var(--radius-sm)', color: 'var(--text)', outline: 'none'
                     }}
                   />
+                  {formData.confirm_password.length > 0 && (
+                    <button
+                      type="button"
+                      onClick={() => setShowConfirmPassword(!showConfirmPassword)}
+                      style={{
+                        position: 'absolute',
+                        right: '0.75rem',
+                        top: '50%',
+                        transform: 'translateY(-50%)',
+                        background: 'none',
+                        border: 'none',
+                        padding: 0,
+                        cursor: 'pointer',
+                        color: 'var(--text-muted)',
+                        display: 'flex',
+                        alignItems: 'center'
+                      }}
+                    >
+                      {showConfirmPassword ? <EyeOff size={18} /> : <Eye size={18} />}
+                    </button>
+                  )}
                 </div>
               </div>
             </div>

@@ -1,13 +1,14 @@
 import { useState } from 'react';
 import { useAuth } from '../context/AuthContext';
 import { Link } from 'react-router-dom';
-import { ArrowRight, Lock, User, Loader2 } from 'lucide-react';
+import { ArrowRight, Lock, User, Loader2, Eye, EyeOff } from 'lucide-react';
 import AnimatedAuthBackground from '../components/AnimatedAuthBackground';
 
 export default function Login() {
   const { login } = useAuth();
   const [identifier, setIdentifier] = useState('');
   const [password, setPassword] = useState('');
+  const [showPassword, setShowPassword] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
 
   const handleSubmit = async (e) => {
@@ -66,13 +67,13 @@ export default function Login() {
               <div style={{ position: 'relative' }}>
                 <Lock size={18} style={{ position: 'absolute', left: '1rem', top: '50%', transform: 'translateY(-50%)', color: 'var(--text-muted)' }} />
                 <input 
-                  type="password" 
+                  type={showPassword ? 'text' : 'password'} 
                   value={password}
                   onChange={e => setPassword(e.target.value)}
                   placeholder="Enter password"
                   required
                   style={{ 
-                    width: '100%', padding: '0.75rem 1rem 0.75rem 2.75rem', 
+                    width: '100%', padding: '0.75rem 2.75rem 0.75rem 2.75rem', 
                     background: 'var(--select-bg)', border: '1px solid var(--border)', 
                     borderRadius: 'var(--radius-sm)', color: 'var(--text)',
                     outline: 'none', transition: 'border-color 0.2s'
@@ -80,6 +81,27 @@ export default function Login() {
                   onFocus={e => e.target.style.borderColor = 'var(--primary)'}
                   onBlur={e => e.target.style.borderColor = 'var(--border)'}
                 />
+                {password.length > 0 && (
+                  <button
+                    type="button"
+                    onClick={() => setShowPassword(!showPassword)}
+                    style={{
+                      position: 'absolute',
+                      right: '1rem',
+                      top: '50%',
+                      transform: 'translateY(-50%)',
+                      background: 'none',
+                      border: 'none',
+                      padding: 0,
+                      cursor: 'pointer',
+                      color: 'var(--text-muted)',
+                      display: 'flex',
+                      alignItems: 'center'
+                    }}
+                  >
+                    {showPassword ? <EyeOff size={18} /> : <Eye size={18} />}
+                  </button>
+                )}
               </div>
             </div>
 

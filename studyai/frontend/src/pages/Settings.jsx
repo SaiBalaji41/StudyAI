@@ -2,7 +2,7 @@ import { useState } from 'react';
 import { useAuth } from '../context/AuthContext';
 import { authUpdateProfile, authUpdatePassword, authDeleteAccount } from '../services/api';
 import { useToast } from '../context/ToastContext';
-import { Loader2, Save, KeyRound, User, Mail, AtSign, Trash2, AlertTriangle, X, Brain } from 'lucide-react';
+import { Loader2, Save, KeyRound, User, Mail, AtSign, Trash2, AlertTriangle, X, Brain, Eye, EyeOff } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 
 export default function Settings() {
@@ -26,6 +26,9 @@ export default function Settings() {
     current_password: '',
     new_password: ''
   });
+  const [showCurrentPassword, setShowCurrentPassword] = useState(false);
+  const [showNewPassword, setShowNewPassword] = useState(false);
+  const [showApiKeys, setShowApiKeys] = useState({});
 
   const [showDeleteModal, setShowDeleteModal] = useState(false);
   const [deleteLoading, setDeleteLoading] = useState(false);
@@ -163,18 +166,41 @@ export default function Settings() {
             {['groq', 'openai', 'gemini', 'claude', 'deepseek'].map((provider) => {
               const keyField = `${provider}_api_key`;
               const label = provider === 'groq' ? 'Groq' : provider === 'openai' ? 'OpenAI' : provider === 'gemini' ? 'Gemini' : provider === 'claude' ? 'Claude' : 'DeepSeek';
+              const keyValue = profileData[keyField] || '';
               return (
                 <div className="form-group" key={provider}>
                   <label>{label} API Key (Optional)</label>
                   <div className="input-with-icon" style={{ position: 'relative' }}>
                     <KeyRound size={18} />
                     <input 
-                      type="password" 
+                      type={showApiKeys[provider] ? 'text' : 'password'} 
                       placeholder={`Enter custom ${label} API key`}
                       value={profileData[keyField]} 
                       onChange={e => setProfileData({...profileData, [keyField]: e.target.value})}
-                      style={{ width: '100%' }}
+                      style={{ width: '100%', paddingRight: '2.75rem' }}
                     />
+                    {keyValue.length > 0 && (
+                      <button
+                        type="button"
+                        onClick={() => setShowApiKeys({ ...showApiKeys, [provider]: !showApiKeys[provider] })}
+                        style={{
+                          position: 'absolute',
+                          right: '1rem',
+                          top: '50%',
+                          transform: 'translateY(-50%)',
+                          background: 'none',
+                          border: 'none',
+                          padding: 0,
+                          cursor: 'pointer',
+                          color: 'var(--text-muted)',
+                          display: 'flex',
+                          alignItems: 'center',
+                          zIndex: 10
+                        }}
+                      >
+                        {showApiKeys[provider] ? <EyeOff size={18} /> : <Eye size={18} />}
+                      </button>
+                    )}
                   </div>
                 </div>
               );
@@ -198,11 +224,34 @@ export default function Settings() {
               <div className="input-with-icon">
                 <KeyRound size={18} />
                 <input 
-                  type="password" 
+                  type={showCurrentPassword ? "text" : "password"} 
                   value={passwordData.current_password} 
                   onChange={e => setPasswordData({...passwordData, current_password: e.target.value})}
                   required
+                  style={{ paddingRight: '2.75rem' }}
                 />
+                {passwordData.current_password.length > 0 && (
+                  <button
+                    type="button"
+                    onClick={() => setShowCurrentPassword(!showCurrentPassword)}
+                    style={{
+                      position: 'absolute',
+                      right: '1rem',
+                      top: '50%',
+                      transform: 'translateY(-50%)',
+                      background: 'none',
+                      border: 'none',
+                      padding: 0,
+                      cursor: 'pointer',
+                      color: 'var(--text-muted)',
+                      display: 'flex',
+                      alignItems: 'center',
+                      zIndex: 10
+                    }}
+                  >
+                    {showCurrentPassword ? <EyeOff size={18} /> : <Eye size={18} />}
+                  </button>
+                )}
               </div>
             </div>
 
@@ -211,12 +260,35 @@ export default function Settings() {
               <div className="input-with-icon">
                 <KeyRound size={18} />
                 <input 
-                  type="password" 
+                  type={showNewPassword ? "text" : "password"} 
                   value={passwordData.new_password} 
                   onChange={e => setPasswordData({...passwordData, new_password: e.target.value})}
                   required
                   minLength={6}
+                  style={{ paddingRight: '2.75rem' }}
                 />
+                {passwordData.new_password.length > 0 && (
+                  <button
+                    type="button"
+                    onClick={() => setShowNewPassword(!showNewPassword)}
+                    style={{
+                      position: 'absolute',
+                      right: '1rem',
+                      top: '50%',
+                      transform: 'translateY(-50%)',
+                      background: 'none',
+                      border: 'none',
+                      padding: 0,
+                      cursor: 'pointer',
+                      color: 'var(--text-muted)',
+                      display: 'flex',
+                      alignItems: 'center',
+                      zIndex: 10
+                    }}
+                  >
+                    {showNewPassword ? <EyeOff size={18} /> : <Eye size={18} />}
+                  </button>
+                )}
               </div>
             </div>
 

@@ -15,7 +15,6 @@ import { Line, Bar, Doughnut } from 'react-chartjs-2';
 import { getAnalytics } from '../services/api';
 import LoadingSpinner from '../components/LoadingSpinner';
 import PageHero from '../components/PageHero';
-import AchievementsPanel from '../components/AchievementsPanel';
 
 ChartJS.register(
   CategoryScale,
@@ -100,9 +99,24 @@ export default function Analytics() {
     }],
   };
 
+  const heatmapData = data?.study_heatmap || [];
+  const sortedHeatmap = [...heatmapData].sort((a, b) => new Date(a.date) - new Date(b.date));
+
+  const activityChartData = {
+    labels: sortedHeatmap.map((h) => h.date),
+    datasets: [{
+      label: 'Study Activities',
+      data: sortedHeatmap.map((h) => h.count),
+      borderColor: '#10b981',
+      backgroundColor: 'rgba(16, 185, 129, 0.2)',
+      tension: 0.3,
+      fill: true,
+    }],
+  };
+
   return (
     <div>
-      <PageHero badge="Analytics" title="Learning Analytics" subtitle="Track performance trends, weak topics, achievements, and study habits." />
+      <PageHero badge="Analytics" title="Learning Analytics" subtitle="Track performance trends, weak topics, study activity, and habits." />
 
       {error && <div className="alert alert-error">{error}</div>}
 
@@ -130,10 +144,16 @@ export default function Analytics() {
       </div>
 
       <div className="card" style={{ marginBottom: '1.5rem' }}>
-        <AchievementsPanel
-          achievements={data?.achievements || []}
-          summary={data?.achievement_summary}
-        />
+        <h4 style={{ marginBottom: '1rem' }}>Daily Study Activity Trends</h4>
+        {sortedHeatmap.length > 0 ? (
+          <div className="chart-container" style={{ height: '300px', position: 'relative' }}>
+            <Line data={activityChartData} options={chartOptions} />
+          </div>
+        ) : (
+          <div className="empty-state">
+            <p>Complete quizzes, save summaries, or study with Pomodoro to generate activity data</p>
+          </div>
+        )}
       </div>
 
       <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(400px, 1fr))', gap: '1.5rem' }}>
