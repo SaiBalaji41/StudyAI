@@ -81,14 +81,23 @@ class StorageService:
     def _list_documents(self, collection: str) -> list[dict[str, Any]]:
         if self.use_supabase and _db:
             try:
-                response = _db.table("documents").select("data").eq("collection", collection).execute()
                 user_id = _get_current_user_id()
-                docs = []
-                for row in response.data:
-                    data = row["data"]
-                    doc_user_id = data.get("user_id") or "a90cb26a-63fe-4628-acd9-e281da87de6b"
-                    if doc_user_id == user_id:
-                        docs.append(data)
+                query = _db.table("documents").select("data").eq("collection", collection)
+                
+                # If it's the legacy default user, fallback to fetching all and filtering in memory
+                # to handle documents without user_id safely. Otherwise, filter at DB level.
+                if user_id == "a90cb26a-63fe-4628-acd9-e281da87de6b":
+                    response = query.execute()
+                    docs = []
+                    for row in response.data:
+                        data = row["data"]
+                        doc_user_id = data.get("user_id") or "a90cb26a-63fe-4628-acd9-e281da87de6b"
+                        if doc_user_id == user_id:
+                            docs.append(data)
+                else:
+                    response = query.eq("data->>user_id", user_id).execute()
+                    docs = [row["data"] for row in response.data]
+                
                 docs.sort(key=lambda x: x.get("created_at", ""), reverse=True)
                 return docs
             except Exception as e:
@@ -151,12 +160,9 @@ class StorageService:
     def get_user_by_username(self, username: str) -> dict[str, Any] | None:
         if self.use_supabase and _db:
             try:
-                response = _db.table("documents").select("data").eq("collection", "users").execute()
-                username_lower = username.lower()
-                for row in response.data:
-                    u = row["data"]
-                    if u.get("username", "").lower() == username_lower:
-                        return u
+                response = _db.table("documents").select("data").eq("collection", "users").ilike("data->>username", username).execute()
+                if response.data:
+                    return response.data[0]["data"]
             except Exception as e:
                 print(f"Supabase get_user_by_username error: {e}")
         return local_storage.get_user_by_username(username)
@@ -245,15 +251,26 @@ class StorageService:
     def get_quiz_results(self, material_id: str | None = None) -> list[dict[str, Any]]:
         if self.use_supabase and _db:
             try:
-                response = _db.table("documents").select("data").eq("collection", "quiz_results").execute()
                 user_id = _get_current_user_id()
-                results = []
-                for row in response.data:
-                    data = row["data"]
-                    doc_user_id = data.get("user_id") or "a90cb26a-63fe-4628-acd9-e281da87de6b"
-                    if doc_user_id == user_id:
+                query = _db.table("documents").select("data").eq("collection", "quiz_results")
+                
+                if user_id == "a90cb26a-63fe-4628-acd9-e281da87de6b":
+                    response = query.execute()
+                    results = []
+                    for row in response.data:
+                        data = row["data"]
+                        doc_user_id = data.get("user_id") or "a90cb26a-63fe-4628-acd9-e281da87de6b"
+                        if doc_user_id == user_id:
+                            if not material_id or data.get("material_id") == material_id:
+                                results.append(data)
+                else:
+                    response = query.eq("data->>user_id", user_id).execute()
+                    results = []
+                    for row in response.data:
+                        data = row["data"]
                         if not material_id or data.get("material_id") == material_id:
                             results.append(data)
+                            
                 results.sort(key=lambda r: r.get("completed_at", ""), reverse=True)
                 return results
             except Exception as e:
