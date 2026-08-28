@@ -30,8 +30,8 @@ def signup():
         return jsonify({"error": "Password must be at least 6 characters long"}), 400
         
     import re
-    if not re.search(r'[^a-zA-Z0-9]', username):
-        return jsonify({"error": "Username must contain at least one special character"}), 400
+    if re.search(r'[^a-zA-Z0-9_.-]', username):
+        return jsonify({"error": "Username can only contain alphanumeric characters, underscores, dashes, and periods"}), 400
         
     if "@" not in email or "." not in email:
         return jsonify({"error": "Invalid email format"}), 400
@@ -103,8 +103,10 @@ def login():
 def logout():
     auth_header = request.headers.get("Authorization")
     if auth_header and auth_header.startswith("Bearer "):
-        token = auth_header.split(" ")[1]
-        storage_service.delete_session(token)
+        parts = auth_header.split(" ")
+        if len(parts) >= 2:
+            token = parts[1]
+            storage_service.delete_session(token)
     return jsonify({"message": "Logged out successfully"}), 200
 
 
@@ -133,8 +135,8 @@ def update_profile():
     if username:
         username = username.strip()
         import re
-        if not re.search(r'[^a-zA-Z0-9]', username):
-            return jsonify({"error": "Username must contain at least one special character"}), 400
+        if re.search(r'[^a-zA-Z0-9_.-]', username):
+            return jsonify({"error": "Username can only contain alphanumeric characters, underscores, dashes, and periods"}), 400
         existing = storage_service.get_user_by_username(username)
         if existing and existing["id"] != user_id:
             return jsonify({"error": "Username already taken"}), 400

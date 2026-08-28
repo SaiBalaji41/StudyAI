@@ -691,6 +691,10 @@ select:focus {
   animation: spin 0.7s linear infinite;
 }
 
+.spin {
+  animation: spin 1s linear infinite;
+}
+
 @keyframes spin {
   to {
     transform: rotate(360deg);

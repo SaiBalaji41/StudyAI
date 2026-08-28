@@ -49,7 +49,10 @@ def create_app() -> Flask:
         if not auth_header or not auth_header.startswith("Bearer "):
             return jsonify({"error": "Unauthorized"}), 401
             
-        token = auth_header.split(" ")[1]
+        parts = auth_header.split(" ")
+        if len(parts) < 2 or not parts[1]:
+            return jsonify({"error": "Invalid token format"}), 401
+        token = parts[1]
         user_id = storage_service.get_session(token)
         
         if not user_id:
@@ -59,12 +62,14 @@ def create_app() -> Flask:
 
     @app.route("/api/health")
     def health():
+        provider, key = ai_service._get_active_provider_and_key()
+        active_model = ai_service.default_models.get(provider, "local-engine") if key else "local-engine"
         return jsonify({
             "status": "healthy",
             "service": "StudyAI Backend",
             "storage_mode": storage_service.storage_mode,
             "ai_mode": ai_service.mode,
-            "model": "llama-3.3-70b-versatile" if ai_service.mode == "groq" else "local-engine",
+            "model": active_model,
         })
 
     @app.after_request

@@ -9,7 +9,10 @@ def require_auth(f):
         if not auth_header or not auth_header.startswith("Bearer "):
             return jsonify({"error": "Unauthorized"}), 401
             
-        token = auth_header.split(" ")[1]
+        parts = auth_header.split(" ")
+        if len(parts) < 2 or not parts[1]:
+            return jsonify({"error": "Invalid token format"}), 401
+        token = parts[1]
         user_id = storage_service.get_session(token)
         
         if not user_id:

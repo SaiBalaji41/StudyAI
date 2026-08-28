@@ -13,7 +13,7 @@ DATA_DIR.mkdir(exist_ok=True)
 UPLOAD_DIR.mkdir(exist_ok=True)
 
 GROQ_API_KEY = os.getenv("GROQ_API_KEY", "")
-GROQ_MODEL = os.getenv("GROQ_MODEL", "llama-3.3-70b-versatile")
+GROQ_MODEL = os.getenv("GROQ_MODEL", "openai/gpt-oss-120b")
 GROQ_CONFIGURED = bool(GROQ_API_KEY) and GROQ_API_KEY != "your_groq_api_key_here"
 FLASK_SECRET_KEY = os.getenv("FLASK_SECRET_KEY", "studyai-dev-secret")
 FLASK_PORT = int(os.getenv("PORT", os.getenv("FLASK_PORT", "5000")))

@@ -12,7 +12,7 @@ class AIService:
     def __init__(self) -> None:
         self.default_provider = "groq"
         self.default_models = {
-            "groq": GROQ_MODEL or "llama-3.3-70b-versatile",
+            "groq": GROQ_MODEL or "openai/gpt-oss-120b",
             "openai": "gpt-4o-mini",
             "gemini": "gemini-2.5-flash",
             "claude": "claude-3-5-sonnet-20241022",
@@ -196,7 +196,7 @@ class AIService:
 
     def _call_ai(self, system_prompt: str, user_prompt: str, max_tokens: int = 4096, history: list[dict[str, str]] | None = None) -> str:
         provider, api_key = self._get_active_provider_and_key()
-        model = self.default_models.get(provider, "llama-3.3-70b-versatile")
+        model = self.default_models.get(provider, "openai/gpt-oss-120b")
         
         if not api_key:
             raise ValueError(f"No API key configured for {provider}")
@@ -391,7 +391,35 @@ Return JSON array only."""
             return local_ai_service.generate_schedule(content, weak_topics, material_title)
         try:
             weak_topics_str = json.dumps(weak_topics) if weak_topics else "[]"
-            system_prompt = "Generate 7-day study schedule as JSON with title, overview, days array."
+            system_prompt = """You are an expert study planner.
+Return a 7-day study schedule as a JSON object with these exact keys:
+{
+  "title": "string",
+  "overview": "string",
+  "days": [
+    {
+      "day": number,
+      "date_label": "string - e.g. Day 1",
+      "focus_topics": ["array of topic strings"],
+      "time_slots": [
+        {
+          "time": "string - e.g. 9:00 AM - 10:00 AM",
+          "task": "string"
+        }
+      ],
+      "tasks": [
+        {
+          "title": "string",
+          "description": "string",
+          "priority": "string - high, medium, or low",
+          "completed": false
+        }
+      ],
+      "study_tip": "string"
+    }
+  ]
+}
+Return ONLY valid JSON, no conversational intro/outro, and no markdown code fences."""
             user_prompt = f'Plan for "{material_title}":\n{content[:8000]}\nWeak: {weak_topics_str}'
             return self._parse_json(self._call_ai(system_prompt, user_prompt, max_tokens=5000))
         except ValueError:
@@ -412,7 +440,33 @@ Context: {content[:8000]}"""
         if not self._use_groq():
             return local_ai_service.generate_insights(content, title)
         try:
-            system_prompt = "Return JSON with exam_tips, common_mistakes, memory_techniques, key_formulas, study_priority, estimated_study_hours, difficulty_rating, mind_map."
+            system_prompt = """You are an expert study insights generator.
+Return a structured JSON object with these exact keys:
+{
+  "exam_tips": ["array of exam tip strings"],
+  "common_mistakes": ["array of common mistake strings"],
+  "memory_techniques": ["array of memory technique strings"],
+  "key_formulas": ["array of formula strings"],
+  "estimated_study_hours": number,
+  "difficulty_rating": "string - easy, medium, or hard",
+  "study_priority": [
+    {
+      "topic": "string",
+      "importance": "string - high, medium, or low",
+      "reason": "string"
+    }
+  ],
+  "mind_map": {
+    "central_topic": "string",
+    "branches": [
+      {
+        "label": "string",
+        "children": ["array of child concept strings"]
+      }
+    ]
+  }
+}
+Return ONLY valid JSON, no conversational intro/outro, and no markdown code fences."""
             user_prompt = f'Analyze "{title}":\n{content[:10000]}'
             return self._parse_json(self._call_ai(system_prompt, user_prompt, max_tokens=3000))
         except ValueError:
@@ -422,7 +476,19 @@ Context: {content[:8000]}"""
         if not self._use_groq():
             return local_ai_service.generate_practice_for_weak_topics(content, weak_topics, count)
         topics_str = ", ".join(weak_topics) if weak_topics else "general"
-        system_prompt = f"Return JSON array of {count} practice questions with question, hint, answer, topic, explanation."
+        system_prompt = f"""You are an expert study practice question generator.
+Return a JSON array of exactly {count} practice question objects with these exact keys:
+[
+  {{
+    "id": "string",
+    "question": "string",
+    "hint": "string",
+    "answer": "string",
+    "topic": "string",
+    "explanation": "string"
+  }}
+]
+Return ONLY valid JSON, no conversational intro/outro, and no markdown code fences."""
         user_prompt = f"Weak topics: {topics_str}\nMaterial:\n{content[:8000]}"
         questions = self._parse_json(self._call_ai(system_prompt, user_prompt, max_tokens=3000))
         for i, q in enumerate(questions):
