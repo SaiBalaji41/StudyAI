@@ -1,5 +1,6 @@
 import { useEffect, useState } from 'react';
 import ReactMarkdown from 'react-markdown';
+import remarkGfm from 'remark-gfm';
 import { generateSummary, getMaterials, getSummary } from '../services/api';
 import MaterialSelector from '../components/MaterialSelector';
 import LoadingSpinner from '../components/LoadingSpinner';
@@ -117,7 +118,7 @@ export default function Summary() {
             <>
               <h4 style={{ color: 'var(--primary-light)', marginBottom: '0.5rem', marginTop: '1rem' }}>Full Summary</h4>
               <div className="markdown-content">
-                <ReactMarkdown>{summary.markdown}</ReactMarkdown>
+                <ReactMarkdown remarkPlugins={[remarkGfm]}>{summary.markdown}</ReactMarkdown>
               </div>
             </>
           )}

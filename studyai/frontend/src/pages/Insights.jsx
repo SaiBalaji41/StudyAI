@@ -51,7 +51,7 @@ export default function Insights() {
 
   return (
     <div>
-      <PageHero badge="Learning Intelligence" title="AI Study Insights" subtitle="Get exam tips, memory techniques, mind maps, and targeted practice for weak topics." />
+      <PageHero badge="Learning Intelligence" title="AI Study Insights" subtitle="Get exam tips, memory techniques, and targeted practice for weak topics." />
 
       <div className="card" style={{ marginBottom: '1.5rem' }}>
         <MaterialSelector materials={materials} selectedId={selectedId} onChange={setSelectedId} />
@@ -81,22 +81,7 @@ export default function Insights() {
             </div>
           </div>
 
-          {insights.mind_map && (
-            <div className="card" style={{ marginBottom: '1.5rem' }}>
-              <h3 style={{ marginBottom: '1rem' }}>Mind Map</h3>
-              <div className="mind-map">
-                <div className="mind-map-center">{insights.mind_map.central_topic}</div>
-                <div className="mind-map-branches">
-                  {(insights.mind_map.branches || []).map((b, i) => (
-                    <div key={i} className="mind-map-branch">
-                      <h5>{b.label}</h5>
-                      <ul>{(b.children || []).map((c, j) => <li key={j}>{c}</li>)}</ul>
-                    </div>
-                  ))}
-                </div>
-              </div>
-            </div>
-          )}
+
 
           <div className="insight-grid">
             {insights.exam_tips?.length > 0 && (

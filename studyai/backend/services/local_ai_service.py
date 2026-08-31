@@ -230,10 +230,6 @@ class LocalAIService:
             ],
             "estimated_study_hours": max(2, len(content.split()) // 200),
             "difficulty_rating": "medium",
-            "mind_map": {
-                "central_topic": title,
-                "branches": [{"label": c, "children": [f"Detail about {c}"]} for c in concepts[:4]],
-            },
         }
 
     def generate_practice_for_weak_topics(self, content: str, weak_topics: list[str], count: int = 5) -> list[dict[str, Any]]:

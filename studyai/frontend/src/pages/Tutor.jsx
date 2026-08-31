@@ -7,6 +7,7 @@ import MaterialSelector from '../components/MaterialSelector';
 import PageHero from '../components/PageHero';
 import LoadingSpinner from '../components/LoadingSpinner';
 import ReactMarkdown from 'react-markdown';
+import remarkGfm from 'remark-gfm';
 import { 
   MessageSquare, Brain, Highlighter, Trash2, 
   Send, Sparkles, RefreshCw, X, PlusCircle, ExternalLink 
@@ -35,7 +36,7 @@ export default function Tutor() {
   const chatEndRef = useRef(null);
 
   // Left Pane states
-  const [leftTab, setLeftTab] = useState('summary'); // 'summary' | 'annotations' | 'mindmap'
+  const [leftTab, setLeftTab] = useState('summary'); // 'summary' | 'annotations'
   const [summary, setSummary] = useState(null);
   const [annotations, setAnnotations] = useState([]);
   const [insights, setInsights] = useState(null);
@@ -164,7 +165,7 @@ export default function Tutor() {
 
   return (
     <div>
-      <PageHero badge="AI Tutor Space" title="Interactive Study Workspace" subtitle="Read summary notes, highlight to annotate, visualize mind maps, and chat with AI Tutor." />
+      <PageHero badge="AI Tutor Space" title="Interactive Study Workspace" subtitle="Read summary notes, highlight to annotate, and chat with AI Tutor." />
 
       <div className="card" style={{ marginBottom: '1.5rem' }}>
         <MaterialSelector materials={materials} selectedId={selectedId} onChange={setSelectedId} />
@@ -175,7 +176,7 @@ export default function Tutor() {
           <div className="empty-state-icon" style={{ color: 'var(--text-muted)', marginBottom: '1.5rem' }}><Brain size={56} /></div>
           <h2>Access Your Learning Workspace</h2>
           <p style={{ color: 'var(--text-muted)', marginTop: '0.5rem' }}>
-            Select a study material above to open the notes reader, visual mind maps, and your personal AI Tutor.
+            Select a study material above to open the notes reader, highlights, and your personal AI Tutor.
           </p>
         </div>
       ) : (
@@ -185,7 +186,6 @@ export default function Tutor() {
             <div className="tabs" style={{ marginBottom: '1rem', flexShrink: 0 }}>
               <button className={`tab ${leftTab === 'summary' ? 'active' : ''}`} onClick={() => setLeftTab('summary')}>Summary Notes</button>
               <button className={`tab ${leftTab === 'annotations' ? 'active' : ''}`} onClick={() => setLeftTab('annotations')}>Highlights ({annotations.length})</button>
-              <button className={`tab ${leftTab === 'mindmap' ? 'active' : ''}`} onClick={() => setLeftTab('mindmap')}>Mind Map</button>
             </div>
 
             {loadingLeft ? (
@@ -335,40 +335,6 @@ export default function Tutor() {
                   </div>
                 )}
 
-                {/* Tab 3: Mind Map */}
-                {leftTab === 'mindmap' && (
-                  <div>
-                    {insights?.mind_map ? (
-                      <div className="mind-map" style={{ padding: '1rem' }}>
-                        <div className="mind-map-center" style={{ 
-                          background: 'var(--primary)', color: 'white', padding: '0.75rem 1.5rem', 
-                          borderRadius: '16px', fontWeight: 'bold', display: 'inline-block',
-                          boxShadow: '0 4px 15px var(--glow)'
-                        }}>
-                          {insights.mind_map.central_topic}
-                        </div>
-                        <div className="mind-map-branches" style={{ marginTop: '2rem', display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(180px, 1fr))', gap: '1rem' }}>
-                          {(insights.mind_map.branches || []).map((b, i) => (
-                            <div key={i} className="mind-map-branch" style={{ 
-                              background: 'var(--bg-glass)', border: '1px solid var(--border)',
-                              padding: '1rem', borderRadius: '16px', textAlign: 'left'
-                            }}>
-                              <h5 style={{ color: 'var(--primary-light)', fontWeight: 'bold', marginBottom: '0.5rem', borderBottom: '1px solid var(--border)', paddingBottom: '0.25rem' }}>{b.label}</h5>
-                              <ul style={{ paddingLeft: '1.25rem', fontSize: '0.85rem', color: 'var(--text-muted)' }}>
-                                {(b.children || []).map((c, j) => <li key={j} style={{ marginBottom: '0.25rem' }}>{c}</li>)}
-                              </ul>
-                            </div>
-                          ))}
-                        </div>
-                      </div>
-                    ) : (
-                      <div style={{ textAlign: 'center', padding: '2rem', color: 'var(--text-muted)' }}>
-                        <p>No mind maps generated for this material yet.</p>
-                        <p style={{ fontSize: '0.8rem' }}>Visit the Insights page to analyze your notes and view mind maps.</p>
-                      </div>
-                    )}
-                  </div>
-                )}
               </div>
             )}
           </div>
@@ -424,7 +390,13 @@ export default function Tutor() {
                   lineHeight: 1.5,
                   fontSize: '0.925rem'
                 }}>
-                  {m.content}
+                  {m.role === 'assistant' ? (
+                    <div className="markdown-content">
+                      <ReactMarkdown remarkPlugins={[remarkGfm]}>{m.content}</ReactMarkdown>
+                    </div>
+                  ) : (
+                    m.content
+                  )}
                 </div>
               ))}
               {thinking && (

@@ -1144,6 +1144,38 @@ select:focus {
   color: var(--secondary);
 }
 
+.markdown-content table {
+  width: 100%;
+  border-collapse: collapse;
+  margin: 1rem 0;
+  font-size: 0.85rem;
+  display: block;
+  overflow-x: auto;
+}
+
+.markdown-content th,
+.markdown-content td {
+  border: 1px solid var(--border);
+  padding: 0.5rem 0.75rem;
+  text-align: left;
+  min-width: 120px;
+}
+
+.markdown-content th {
+  background-color: rgba(255, 255, 255, 0.06);
+  font-weight: 600;
+  color: var(--primary-light);
+}
+
+.markdown-content tr:nth-child(even) {
+  background-color: rgba(255, 255, 255, 0.02);
+}
+
+.markdown-content > p:last-child,
+.markdown-content > *:last-child p:last-child {
+  margin-bottom: 0;
+}
+
 /* Empty state */
 .empty-state {
   text-align: center;
@@ -1397,59 +1429,6 @@ select:focus {
   font-size: 0.85rem;
 }
 
-/* Insights / Mind Map */
-.mind-map {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  gap: 1rem;
-  padding: 1.5rem;
-}
-
-.mind-map-center {
-  padding: 1rem 1.5rem;
-  background: linear-gradient(135deg, var(--primary), var(--secondary));
-  color: white;
-  border-radius: var(--radius);
-  font-weight: 700;
-  font-size: 1rem;
-}
-
-.mind-map-branches {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 1rem;
-  justify-content: center;
-}
-
-.mind-map-branch {
-  background: var(--bg-glass);
-  border: 1px solid var(--border);
-  border-radius: var(--radius-sm);
-  padding: 1rem;
-  min-width: 180px;
-}
-
-.mind-map-branch h5 {
-  color: var(--primary-light);
-  margin-bottom: 0.5rem;
-  font-size: 0.85rem;
-}
-
-.mind-map-branch ul {
-  list-style: none;
-  font-size: 0.8rem;
-  color: var(--text-muted);
-}
-
-.mind-map-branch li {
-  padding: 0.2rem 0;
-}
-
-.mind-map-branch li::before {
-  content: '• ';
-  color: var(--secondary);
-}
 
 .insight-grid {
   display: grid;

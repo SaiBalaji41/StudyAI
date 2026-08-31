@@ -455,16 +455,7 @@ Return a structured JSON object with these exact keys:
       "importance": "string - high, medium, or low",
       "reason": "string"
     }
-  ],
-  "mind_map": {
-    "central_topic": "string",
-    "branches": [
-      {
-        "label": "string",
-        "children": ["array of child concept strings"]
-      }
-    ]
-  }
+  ]
 }
 Return ONLY valid JSON, no conversational intro/outro, and no markdown code fences."""
             user_prompt = f'Analyze "{title}":\n{content[:10000]}'
