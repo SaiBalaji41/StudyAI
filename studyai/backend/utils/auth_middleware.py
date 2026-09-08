@@ -5,6 +5,9 @@ from services.storage_service import storage_service
 def require_auth(f):
     @wraps(f)
     def decorated(*args, **kwargs):
+        if hasattr(g, "user_id") and g.user_id:
+            return f(*args, **kwargs)
+
         auth_header = request.headers.get("Authorization")
         if not auth_header or not auth_header.startswith("Bearer "):
             return jsonify({"error": "Unauthorized"}), 401
@@ -21,3 +24,4 @@ def require_auth(f):
         g.user_id = user_id
         return f(*args, **kwargs)
     return decorated
+

@@ -58,7 +58,7 @@ def get_analytics():
         if d_str:
             activity_dates.append(d_str)
 
-    materials = storage_service.list_materials()
+    materials = data.get("materials") or []
     for m in materials:
         d_str = m.get("created_at", "")[:10]
         if d_str:

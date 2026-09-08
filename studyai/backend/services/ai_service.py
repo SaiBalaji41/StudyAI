@@ -342,9 +342,16 @@ Return ONLY valid JSON, no markdown fences."""
     def generate_flashcards(self, content: str, count: int = 10) -> list[dict[str, Any]]:
         if not self._use_groq():
             return local_ai_service.generate_flashcards(content, count)
-        system_prompt = """You are an expert flashcard generator for students.
-Return a JSON array of flashcard objects with id, question, answer, topic, difficulty.
-Return ONLY valid JSON array."""
+        system_prompt = """You are an expert educational flashcard creator.
+Generate high-yield study flashcards optimized for Anki spaced repetition.
+Each flashcard object MUST contain:
+- "id": string identifier (e.g. "card_1")
+- "question": a clear, focused concept question or prompt. Formatted cleanly with markdown if needed.
+- "answer": a precise, comprehensive answer. Use markdown (bold highlights, concise bullet points, code snippets) to make key terms stand out.
+- "topic": concise subtopic or domain tag.
+- "difficulty": "easy", "medium", or "hard".
+
+Return ONLY a valid JSON array of objects, with no extra conversational text or markdown wrappers."""
         user_prompt = f"Generate exactly {count} flashcards from:\n\n{content[:10000]}"
         result = self._call_ai(system_prompt, user_prompt, max_tokens=3000)
         cards = self._parse_json(result)

@@ -72,18 +72,16 @@ def signup():
 @auth_bp.route("/login", methods=["POST"])
 def login():
     data = request.json or {}
-    identifier = data.get("identifier", "").strip().lower()
+    identifier = data.get("identifier", "").strip()
     password = data.get("password", "")
     
     if not identifier or not password:
         return jsonify({"error": "Identifier and password required"}), 400
         
-    # Find user by email or username
-    user = storage_service.get_user_by_email(identifier)
-    if not user:
-        user = storage_service.get_user_by_username(identifier)
+    # Instant smart lookup via cached identifier routing
+    user = storage_service.get_user_by_identifier(identifier)
         
-    if not user or not check_password_hash(user["password_hash"], password):
+    if not user or not check_password_hash(user.get("password_hash", ""), password):
         return jsonify({"error": "Invalid credentials"}), 401
         
     token = secrets.token_hex(32)

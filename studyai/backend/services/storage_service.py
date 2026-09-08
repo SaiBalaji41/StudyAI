@@ -1,4 +1,5 @@
 import uuid
+import concurrent.futures
 from datetime import datetime, timezone
 from typing import Any
 
@@ -21,6 +22,32 @@ def _get_current_user_id() -> str:
 
 _supabase_initialized = False
 _db = None
+
+# High-performance in-memory caches to eliminate repeated remote DB roundtrips
+_session_cache: dict[str, str] = {}
+_user_cache_by_id: dict[str, dict[str, Any]] = {}
+_user_cache_by_email: dict[str, str] = {}
+_user_cache_by_username: dict[str, str] = {}
+
+
+def _cache_user(user: dict[str, Any] | None) -> None:
+    if not user or not isinstance(user, dict) or "id" not in user:
+        return
+    uid = user["id"]
+    _user_cache_by_id[uid] = user
+    if "email" in user and user["email"]:
+        _user_cache_by_email[user["email"].strip().lower()] = uid
+    if "username" in user and user["username"]:
+        _user_cache_by_username[user["username"].strip().lower()] = uid
+
+
+def _invalidate_user_cache(user_id: str) -> None:
+    user = _user_cache_by_id.pop(user_id, None)
+    if user:
+        if "email" in user and user["email"]:
+            _user_cache_by_email.pop(user["email"].strip().lower(), None)
+        if "username" in user and user["username"]:
+            _user_cache_by_username.pop(user["username"].strip().lower(), None)
 
 
 def _init_supabase() -> bool:
@@ -84,8 +111,6 @@ class StorageService:
                 user_id = _get_current_user_id()
                 query = _db.table("documents").select("data").eq("collection", collection)
                 
-                # If it's the legacy default user, fallback to fetching all and filtering in memory
-                # to handle documents without user_id safely. Otherwise, filter at DB level.
                 if user_id == "a90cb26a-63fe-4628-acd9-e281da87de6b":
                     response = query.execute()
                     docs = []
@@ -117,6 +142,7 @@ class StorageService:
         return False
 
     def create_user(self, user: dict[str, Any]) -> dict[str, Any]:
+        _cache_user(user)
         if self.use_supabase:
             return self._save_document("users", user["id"], user)
         return local_storage.create_user(user)
@@ -126,12 +152,22 @@ class StorageService:
             user = self.get_user_by_id(user_id)
             if user:
                 user.update(updates)
+                _cache_user(user)
                 self._save_document("users", user_id, user)
                 return user
             return None
-        return local_storage.update_user(user_id, updates)
+        updated = local_storage.update_user(user_id, updates)
+        if updated:
+            _cache_user(updated)
+        return updated
 
     def delete_user(self, user_id: str) -> bool:
+        _invalidate_user_cache(user_id)
+        # Clear all active sessions associated with this user
+        tokens_to_remove = [tok for tok, uid in _session_cache.items() if uid == user_id]
+        for tok in tokens_to_remove:
+            _session_cache.pop(tok, None)
+
         if self.use_supabase:
             if _db:
                 try:
@@ -143,31 +179,78 @@ class StorageService:
         return local_storage.delete_user(user_id)
 
     def get_user_by_id(self, user_id: str) -> dict[str, Any] | None:
+        if user_id in _user_cache_by_id:
+            return _user_cache_by_id[user_id]
         if self.use_supabase:
-            return self._get_document("users", user_id)
-        return local_storage.get_user_by_id(user_id)
+            user = self._get_document("users", user_id)
+            if user:
+                _cache_user(user)
+            return user
+        user = local_storage.get_user_by_id(user_id)
+        if user:
+            _cache_user(user)
+        return user
 
     def get_user_by_email(self, email: str) -> dict[str, Any] | None:
+        email_clean = email.strip().lower()
+        if email_clean in _user_cache_by_email:
+            uid = _user_cache_by_email[email_clean]
+            if uid in _user_cache_by_id:
+                return _user_cache_by_id[uid]
+
         if self.use_supabase and _db:
             try:
-                response = _db.table("documents").select("data").eq("collection", "users").eq("data->>email", email.lower()).execute()
+                response = _db.table("documents").select("data").eq("collection", "users").eq("data->>email", email_clean).execute()
                 if response.data:
-                    return response.data[0]["data"]
+                    user = response.data[0]["data"]
+                    _cache_user(user)
+                    return user
             except Exception as e:
                 print(f"Supabase get_user_by_email error: {e}")
-        return local_storage.get_user_by_email(email)
+        user = local_storage.get_user_by_email(email_clean)
+        if user:
+            _cache_user(user)
+        return user
 
     def get_user_by_username(self, username: str) -> dict[str, Any] | None:
+        uname_clean = username.strip().lower()
+        if uname_clean in _user_cache_by_username:
+            uid = _user_cache_by_username[uname_clean]
+            if uid in _user_cache_by_id:
+                return _user_cache_by_id[uid]
+
         if self.use_supabase and _db:
             try:
-                response = _db.table("documents").select("data").eq("collection", "users").ilike("data->>username", username).execute()
+                response = _db.table("documents").select("data").eq("collection", "users").ilike("data->>username", uname_clean).execute()
                 if response.data:
-                    return response.data[0]["data"]
+                    user = response.data[0]["data"]
+                    _cache_user(user)
+                    return user
             except Exception as e:
                 print(f"Supabase get_user_by_username error: {e}")
-        return local_storage.get_user_by_username(username)
+        user = local_storage.get_user_by_username(uname_clean)
+        if user:
+            _cache_user(user)
+        return user
+
+    def get_user_by_identifier(self, identifier: str) -> dict[str, Any] | None:
+        identifier_clean = identifier.strip()
+        if not identifier_clean:
+            return None
+            
+        if "@" in identifier_clean:
+            user = self.get_user_by_email(identifier_clean)
+            if user:
+                return user
+            return self.get_user_by_username(identifier_clean)
+        else:
+            user = self.get_user_by_username(identifier_clean)
+            if user:
+                return user
+            return self.get_user_by_email(identifier_clean)
 
     def create_session(self, token: str, user_id: str) -> None:
+        _session_cache[token] = user_id
         if self.use_supabase:
             session_data = {"user_id": user_id, "created_at": _now_iso()}
             self._save_document("sessions", token, session_data)
@@ -175,12 +258,23 @@ class StorageService:
         local_storage.create_session(token, user_id)
 
     def get_session(self, token: str) -> str | None:
+        if token in _session_cache:
+            return _session_cache[token]
+
         if self.use_supabase:
             session = self._get_document("sessions", token)
-            return session["user_id"] if session else None
-        return local_storage.get_session(token)
+            if session and "user_id" in session:
+                _session_cache[token] = session["user_id"]
+                return session["user_id"]
+            return None
+
+        uid = local_storage.get_session(token)
+        if uid:
+            _session_cache[token] = uid
+        return uid
 
     def delete_session(self, token: str) -> None:
+        _session_cache.pop(token, None)
         if self.use_supabase:
             self._delete_document("sessions", token)
             return
@@ -371,13 +465,23 @@ class StorageService:
     def get_analytics(self) -> dict[str, Any]:
         if self.use_supabase and _db:
             try:
-                quiz_results = self._list_documents("quiz_results")
-                materials = self._list_documents("materials")
-                summaries = self._list_documents("summaries")
-                flashcards = self._list_documents("flashcards")
-                schedules = self._list_documents("schedules")
+                # Fast parallel retrieval of all 5 document collections
+                with concurrent.futures.ThreadPoolExecutor(max_workers=5) as executor:
+                    f_qr = executor.submit(self._list_documents, "quiz_results")
+                    f_mat = executor.submit(self._list_documents, "materials")
+                    f_sum = executor.submit(self._list_documents, "summaries")
+                    f_fc = executor.submit(self._list_documents, "flashcards")
+                    f_sch = executor.submit(self._list_documents, "schedules")
+
+                    quiz_results = f_qr.result()
+                    materials = f_mat.result()
+                    summaries = f_sum.result()
+                    flashcards = f_fc.result()
+                    schedules = f_sch.result()
+
                 return {
                     "quiz_results": quiz_results,
+                    "materials": materials,
                     "materials_count": len(materials),
                     "summaries_count": len(summaries),
                     "flashcards_count": len(flashcards),
@@ -388,7 +492,9 @@ class StorageService:
                 }
             except Exception as e:
                 print(f"Supabase analytics error: {e}")
-        return local_storage.get_analytics()
+        local_data = local_storage.get_analytics()
+        local_data["materials"] = local_storage.list_materials()
+        return local_data
 
     @property
     def storage_mode(self) -> str:
@@ -396,3 +502,4 @@ class StorageService:
 
 
 storage_service = StorageService()
+
