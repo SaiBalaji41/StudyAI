@@ -154,7 +154,7 @@ export default function Settings() {
               >
                 <option value="groq">Groq (Llama 3.3)</option>
                 <option value="openai">OpenAI (GPT-4o / Mini)</option>
-                <option value="gemini">Google Gemini (Gemini 2.5)</option>
+                <option value="gemini">Google Gemini (Gemini 1.5 / 2.0)</option>
                 <option value="claude">Anthropic Claude (Claude 3.5)</option>
                 <option value="deepseek">DeepSeek (deepseek-chat)</option>
               </select>

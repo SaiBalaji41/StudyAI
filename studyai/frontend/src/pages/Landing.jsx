@@ -20,8 +20,9 @@ export default function Landing() {
       }}>
         <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem' }}>
           <div style={{
-            background: 'var(--primary)', color: '#fff', padding: '0.5rem',
-            borderRadius: '12px', display: 'flex', alignItems: 'center'
+            background: 'linear-gradient(135deg, var(--primary), var(--secondary))', color: '#fff',
+            borderRadius: '12px', display: 'flex', alignItems: 'center', justifyContent: 'center',
+            width: '40px', height: '40px'
           }}>
             <Sparkles size={20} />
           </div>

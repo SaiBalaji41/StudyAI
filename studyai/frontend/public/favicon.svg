@@ -1,0 +1,26 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 128 128" width="100%" height="100%">
+  <defs>
+    <linearGradient id="bgGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#8b5cf6"/>
+      <stop offset="50%" stop-color="#6366f1"/>
+      <stop offset="100%" stop-color="#06b6d4"/>
+    </linearGradient>
+    <radialGradient id="starGlow" cx="50%" cy="50%" r="50%">
+      <stop offset="0%" stop-color="#ffffff" stop-opacity="0.5"/>
+      <stop offset="100%" stop-color="#ffffff" stop-opacity="0"/>
+    </radialGradient>
+    <filter id="subtleGlow" x="-20%" y="-20%" width="140%" height="140%">
+      <feGaussianBlur stdDeviation="1.5" result="glow"/>
+      <feComposite in="SourceGraphic" in2="glow" operator="over"/>
+    </filter>
+  </defs>
+  
+  <!-- Rounded Box with Gradient -->
+  <rect x="4" y="4" width="120" height="120" rx="30" ry="30" fill="url(#bgGrad)"/>
+  
+  <!-- Subtle Soft Inner Glow behind the star -->
+  <circle cx="64" cy="64" r="30" fill="url(#starGlow)"/>
+  
+  <!-- 4-Point Sparkle Star -->
+  <path d="M 64 22 Q 64 64 106 64 Q 64 64 64 106 Q 64 64 22 64 Q 64 64 64 22 Z" fill="#ffffff" filter="url(#subtleGlow)"/>
+</svg>

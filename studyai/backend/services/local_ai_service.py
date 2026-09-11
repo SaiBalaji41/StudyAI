@@ -1,10 +1,11 @@
+import random
 import re
 from typing import Any
 
 
 def _sentences(text: str) -> list[str]:
-    parts = re.split(r"(?<=[.!?])\s+", text.strip())
-    return [s.strip() for s in parts if len(s.strip()) > 20]
+    parts = re.split(r"(?<=[.!?])\s+|\n+", text.strip())
+    return [s.strip() for s in parts if len(s.strip()) > 15]
 
 
 def _chunks(text: str, size: int = 120) -> list[str]:
@@ -94,7 +95,7 @@ class LocalAIService:
         while len(cards) < min(count, 5) and content:
             cards.append({
                 "id": f"card_{len(cards) + 1}",
-                "question": f"Summarize a key point from {topic if cards else 'this material'}",
+                "question": f"Summarize a key point from this material",
                 "answer": content[:200],
                 "topic": "General",
                 "difficulty": "medium",
@@ -114,7 +115,7 @@ class LocalAIService:
             if quiz_type == "true_false":
                 questions.append({
                     "id": qid,
-                    "question": f"True or False: {sent[:100]}",
+                    "question": f"True or False: {sent[:120]}",
                     "type": "true_false",
                     "options": ["True", "False"],
                     "correct_answer": "True",
@@ -124,30 +125,34 @@ class LocalAIService:
             elif quiz_type == "short_answer":
                 questions.append({
                     "id": qid,
-                    "question": f"Briefly explain: {topic}",
+                    "question": f"Briefly explain the key concepts regarding: {topic}",
                     "type": "short_answer",
                     "correct_answer": sent[:150],
-                    "explanation": "Compare your answer with the material.",
+                    "explanation": "Compare your answer with the key facts in the material.",
                     "topic": topic,
                 })
             else:
-                distractors = [s[:40] for s in sents[i + 1:i + 4]] or ["Option B", "Option C", "Option D"]
+                distractors = [s[:50] for s in sents[i + 1:i + 4]] or ["Option B", "Option C", "Option D"]
                 while len(distractors) < 3:
                     distractors.append(f"Alternative {len(distractors) + 1}")
-                options = [sent[:60]] + distractors[:3]
+                
+                correct_opt = sent[:60]
+                options = [correct_opt] + distractors[:3]
+                random.shuffle(options)
+
                 questions.append({
                     "id": qid,
                     "question": f"Which statement best matches the material about {topic}?",
                     "type": "mcq",
                     "options": options,
-                    "correct_answer": options[0],
+                    "correct_answer": correct_opt,
                     "explanation": sent[:200],
                     "topic": topic,
                 })
         return questions
 
     def evaluate_short_answer(self, question: str, expected: str, user_answer: str) -> dict[str, Any]:
-        if not user_answer.strip():
+        if not user_answer or not user_answer.strip():
             return {"is_correct": False, "score": 0, "feedback": "No answer provided."}
         exp_words = set(re.findall(r"\b\w{4,}\b", expected.lower()))
         usr_words = set(re.findall(r"\b\w{4,}\b", user_answer.lower()))
@@ -169,8 +174,16 @@ class LocalAIService:
             for t, c in sorted(topics.items(), key=lambda x: x[1], reverse=True)
         ]
 
-    def generate_schedule(self, content: str, weak_topics: list[dict[str, Any]], material_title: str) -> dict[str, Any]:
-        focus = [wt.get("topic", "Review") for wt in weak_topics[:3]] or _keywords(content, 3) or ["Core Topics"]
+    def generate_schedule(self, content: str, weak_topics: list[Any], material_title: str) -> dict[str, Any]:
+        cleaned_topics = []
+        if weak_topics:
+            for wt in weak_topics:
+                if isinstance(wt, dict):
+                    cleaned_topics.append(wt.get("topic", "Review"))
+                elif isinstance(wt, str):
+                    cleaned_topics.append(wt)
+        
+        focus = cleaned_topics[:3] or _keywords(content, 3) or ["Core Topics"]
         days = []
         for d in range(1, 8):
             topic = focus[(d - 1) % len(focus)]
@@ -232,8 +245,16 @@ class LocalAIService:
             "difficulty_rating": "medium",
         }
 
-    def generate_practice_for_weak_topics(self, content: str, weak_topics: list[str], count: int = 5) -> list[dict[str, Any]]:
-        topics = weak_topics or _keywords(content, 3) or ["General"]
+    def generate_practice_for_weak_topics(self, content: str, weak_topics: list[Any], count: int = 5) -> list[dict[str, Any]]:
+        cleaned_topics = []
+        if weak_topics:
+            for wt in weak_topics:
+                if isinstance(wt, dict):
+                    cleaned_topics.append(wt.get("topic", "General"))
+                elif isinstance(wt, str):
+                    cleaned_topics.append(wt)
+        
+        topics = cleaned_topics or _keywords(content, 3) or ["General"]
         sents = _sentences(content)
         questions = []
         for i in range(count):

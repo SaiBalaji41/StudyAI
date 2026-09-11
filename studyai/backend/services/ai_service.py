@@ -12,24 +12,24 @@ class AIService:
     def __init__(self) -> None:
         self.default_provider = "groq"
         self.default_models = {
-            "groq": GROQ_MODEL or "openai/gpt-oss-120b",
+            "groq": GROQ_MODEL or "llama-3.3-70b-versatile",
             "openai": "gpt-4o-mini",
-            "gemini": "gemini-2.5-flash",
+            "gemini": "gemini-1.5-flash",
             "claude": "claude-3-5-sonnet-20241022",
             "deepseek": "deepseek-chat"
         }
         self.default_vision_models = {
             "groq": "llama-3.2-11b-vision-preview",
             "openai": "gpt-4o",
-            "gemini": "gemini-2.5-flash",
+            "gemini": "gemini-1.5-flash",
             "claude": "claude-3-5-sonnet-20241022",
             "deepseek": "deepseek-chat"
         }
 
     @property
     def mode(self) -> str:
-        prov, _ = self._get_active_provider_and_key()
-        return prov
+        prov, key = self._get_active_provider_and_key()
+        return prov if key else "local"
 
     def _get_active_provider_and_key(self) -> tuple[str, str]:
         """Retrieve active AI provider and key from current request user context, or fallback to environment."""
@@ -78,7 +78,7 @@ class AIService:
     def _call_ai_multimodal(self, system_prompt: str, user_prompt: str, image_bytes: bytes, mime_type: str) -> str:
         """Call active provider with a multimodal text + image input."""
         provider, api_key = self._get_active_provider_and_key()
-        model = self.default_vision_models.get(provider, self.default_models[provider])
+        model = self.default_vision_models.get(provider, self.default_models.get(provider, "llama-3.3-70b-versatile"))
         
         if not api_key:
             raise ValueError(f"No API key configured for {provider}")
@@ -196,7 +196,7 @@ class AIService:
 
     def _call_ai(self, system_prompt: str, user_prompt: str, max_tokens: int = 4096, history: list[dict[str, str]] | None = None) -> str:
         provider, api_key = self._get_active_provider_and_key()
-        model = self.default_models.get(provider, "openai/gpt-oss-120b")
+        model = self.default_models.get(provider, "llama-3.3-70b-versatile")
         
         if not api_key:
             raise ValueError(f"No API key configured for {provider}")
@@ -238,10 +238,18 @@ class AIService:
                 
                 contents = []
                 if history:
+                    last_role = None
                     for m in history:
                         role = "model" if m["role"] == "assistant" else m["role"]
                         if role in ("user", "model"):
-                            contents.append({"role": role, "parts": [m["content"]]})
+                            if role == last_role and contents:
+                                contents[-1]["parts"].append(m["content"])
+                            else:
+                                if not contents and role != "user":
+                                    continue
+                                contents.append({"role": role, "parts": [m["content"]]})
+                                last_role = role
+                                
                 contents.append({"role": "user", "parts": [user_prompt]})
                 
                 response = gemini_model.generate_content(
@@ -258,9 +266,18 @@ class AIService:
                 client = anthropic.Anthropic(api_key=api_key)
                 
                 claude_messages = []
+                last_role = None
                 for m in messages:
                     if m["role"] in ("user", "assistant"):
-                        claude_messages.append({"role": "assistant" if m["role"] == "assistant" else "user", "content": m["content"]})
+                        role = "assistant" if m["role"] == "assistant" else "user"
+                        if role == last_role and claude_messages:
+                            claude_messages[-1]["content"] += f"\n{m['content']}"
+                        else:
+                            claude_messages.append({"role": role, "content": m["content"]})
+                            last_role = role
+                
+                if claude_messages and claude_messages[0]["role"] == "assistant":
+                    claude_messages.pop(0)
                 
                 response = client.messages.create(
                     model=model,
@@ -282,31 +299,39 @@ class AIService:
             raise ValueError("AI returned an empty response")
         cleaned = text.strip()
         
+        # Strip markdown fences if present
+        fence_match = re.search(r"```(?:json)?\s*([\s\S]*?)\s*```", cleaned, re.IGNORECASE)
+        if fence_match:
+            cleaned = fence_match.group(1).strip()
+        
         # Robustly extract JSON block if wrapped in conversational text
         brackets = [cleaned.find(b) for b in ('[', '{') if cleaned.find(b) != -1]
         first_bracket = min(brackets) if brackets else -1
         r_brackets = [cleaned.rfind(b) for b in (']', '}') if cleaned.rfind(b) != -1]
         last_bracket = max(r_brackets) if r_brackets else -1
         
-        if first_bracket != -1 and last_bracket != -1 and last_bracket > first_bracket:
+        if first_bracket != -1 and last_bracket != -1 and last_bracket >= first_bracket:
             cleaned = cleaned[first_bracket:last_bracket + 1]
             
-        if cleaned.startswith("```"):
-            cleaned = re.sub(r"^```(?:json)?\s*", "", cleaned)
-            cleaned = re.sub(r"\s*```$", "", cleaned)
         try:
             return json.loads(cleaned, strict=False)
-        except json.JSONDecodeError as exc:
-            raise ValueError(f"AI returned invalid JSON: {exc} (response sample: {text[:150]})") from exc
+        except json.JSONDecodeError:
+            # Try cleaning trailing commas before closing braces/brackets
+            fixed = re.sub(r",\s*([\]}])", r"\1", cleaned)
+            try:
+                return json.loads(fixed, strict=False)
+            except json.JSONDecodeError as exc:
+                raise ValueError(f"AI returned invalid JSON: {exc} (response sample: {text[:150]})") from exc
 
-    def _use_groq(self) -> bool:
+    def _is_ai_configured(self) -> bool:
         _, api_key = self._get_active_provider_and_key()
-        return bool(api_key)
+        return bool(api_key and api_key != "your_groq_api_key_here")
 
     def generate_summary(self, content: str, title: str) -> dict[str, Any]:
-        if not self._use_groq():
+        if not self._is_ai_configured():
             return local_ai_service.generate_summary(content, title)
-        system_prompt = """You are an expert educational content summarizer.
+        try:
+            system_prompt = """You are an expert educational content summarizer.
 Return a structured JSON object with these exact keys:
 {
   "title": "string",
@@ -318,31 +343,34 @@ Return a structured JSON object with these exact keys:
   "markdown": "string - full markdown summary combining all sections"
 }
 Return ONLY valid JSON, no markdown fences."""
-        user_prompt = f"""Summarize this study material titled "{title}":
+            user_prompt = f"""Summarize this study material titled "{title}":
 
 {content[:12000]}"""
-        result = self._call_ai(system_prompt, user_prompt)
-        parsed = self._parse_json(result)
-        if "markdown" not in parsed:
-            md_parts = [
-                f"# {parsed.get('title', title)}",
-                f"\n## Overview\n{parsed.get('overview', '')}",
-                "\n## Key Concepts",
-                *[f"- {c}" for c in parsed.get("key_concepts", [])],
-                "\n## Important Definitions",
-                *[f"**{d['term']}**: {d['definition']}" for d in parsed.get("definitions", [])],
-                "\n## Core Principles",
-                *[f"- {p}" for p in parsed.get("core_principles", [])],
-                "\n## Revision Notes",
-                *[f"- {n}" for n in parsed.get("revision_notes", [])],
-            ]
-            parsed["markdown"] = "\n".join(md_parts)
-        return parsed
+            result = self._call_ai(system_prompt, user_prompt)
+            parsed = self._parse_json(result)
+            if "markdown" not in parsed:
+                md_parts = [
+                    f"# {parsed.get('title', title)}",
+                    f"\n## Overview\n{parsed.get('overview', '')}",
+                    "\n## Key Concepts",
+                    *[f"- {c}" for c in parsed.get("key_concepts", [])],
+                    "\n## Important Definitions",
+                    *[f"**{d['term']}**: {d['definition']}" for d in parsed.get("definitions", [])],
+                    "\n## Core Principles",
+                    *[f"- {p}" for p in parsed.get("core_principles", [])],
+                    "\n## Revision Notes",
+                    *[f"- {n}" for n in parsed.get("revision_notes", [])],
+                ]
+                parsed["markdown"] = "\n".join(md_parts)
+            return parsed
+        except Exception:
+            return local_ai_service.generate_summary(content, title)
 
     def generate_flashcards(self, content: str, count: int = 10) -> list[dict[str, Any]]:
-        if not self._use_groq():
+        if not self._is_ai_configured():
             return local_ai_service.generate_flashcards(content, count)
-        system_prompt = """You are an expert educational flashcard creator.
+        try:
+            system_prompt = """You are an expert educational flashcard creator.
 Generate high-yield study flashcards optimized for Anki spaced repetition.
 Each flashcard object MUST contain:
 - "id": string identifier (e.g. "card_1")
@@ -352,49 +380,57 @@ Each flashcard object MUST contain:
 - "difficulty": "easy", "medium", or "hard".
 
 Return ONLY a valid JSON array of objects, with no extra conversational text or markdown wrappers."""
-        user_prompt = f"Generate exactly {count} flashcards from:\n\n{content[:10000]}"
-        result = self._call_ai(system_prompt, user_prompt, max_tokens=3000)
-        cards = self._parse_json(result)
-        for i, card in enumerate(cards):
-            if "id" not in card:
-                card["id"] = f"card_{i + 1}"
-        return cards
+            user_prompt = f"Generate exactly {count} flashcards from:\n\n{content[:10000]}"
+            result = self._call_ai(system_prompt, user_prompt, max_tokens=3000)
+            cards = self._parse_json(result)
+            for i, card in enumerate(cards):
+                if "id" not in card:
+                    card["id"] = f"card_{i + 1}"
+            return cards
+        except Exception:
+            return local_ai_service.generate_flashcards(content, count)
 
     def generate_quiz(self, content: str, quiz_type: str, num_questions: int, weak_topics: list[str] = None) -> list[dict[str, Any]]:
-        if not self._use_groq():
+        if not self._is_ai_configured():
             return local_ai_service.generate_quiz(content, quiz_type, num_questions, weak_topics)
-        type_instructions = {
-            "mcq": 'must include keys: "question", "type" (value="mcq"), "options" (array of 4 strings), "correct_answer" (string, single option or comma-separated options if multiple are correct), "explanation", "topic". Note that one or more options can be correct. If multiple options are correct, provide them as a comma-separated list in correct_answer.',
-            "true_false": 'must include keys: "question", "type" (value="true_false"), "options" (array of ["True","False"]), "correct_answer", "explanation", "topic"',
-            "short_answer": 'must include keys: "question", "type" (value="short_answer"), "correct_answer", "explanation", "topic"',
-        }
-        
-        weak_topics_inst = ""
-        if weak_topics:
-            weak_topics_inst = f"\nPRIORITIZE generating questions that test the following weak topics: {', '.join(weak_topics)}."
+        try:
+            type_instructions = {
+                "mcq": 'must include keys: "question", "type" (value="mcq"), "options" (array of 4 strings), "correct_answer" (string, single option or comma-separated options if multiple are correct), "explanation", "topic". Note that one or more options can be correct. If multiple options are correct, provide them as a comma-separated list in correct_answer.',
+                "true_false": 'must include keys: "question", "type" (value="true_false"), "options" (array of ["True","False"]), "correct_answer", "explanation", "topic"',
+                "short_answer": 'must include keys: "question", "type" (value="short_answer"), "correct_answer", "explanation", "topic"',
+            }
             
-        system_prompt = f"""Generate exactly {num_questions} {quiz_type} questions. {type_instructions.get(quiz_type, '')}{weak_topics_inst}
+            weak_topics_inst = ""
+            if weak_topics:
+                weak_topics_inst = f"\nPRIORITIZE generating questions that test the following weak topics: {', '.join(weak_topics)}."
+                
+            system_prompt = f"""Generate exactly {num_questions} {quiz_type} questions. {type_instructions.get(quiz_type, '')}{weak_topics_inst}
 Return JSON array only."""
-        user_prompt = f"Generate quiz from:\n\n{content[:10000]}"
-        result = self._call_ai(system_prompt, user_prompt, max_tokens=4000)
-        questions = self._parse_json(result)
-        for i, q in enumerate(questions):
-            if "id" not in q:
-                q["id"] = f"q_{i + 1}"
-        return questions
+            user_prompt = f"Generate quiz from:\n\n{content[:10000]}"
+            result = self._call_ai(system_prompt, user_prompt, max_tokens=4000)
+            questions = self._parse_json(result)
+            for i, q in enumerate(questions):
+                if "id" not in q:
+                    q["id"] = f"q_{i + 1}"
+            return questions
+        except Exception:
+            return local_ai_service.generate_quiz(content, quiz_type, num_questions, weak_topics)
 
     def evaluate_short_answer(self, question: str, expected: str, user_answer: str) -> dict[str, Any]:
-        if not self._use_groq():
+        if not self._is_ai_configured():
             return local_ai_service.evaluate_short_answer(question, expected, user_answer)
-        system_prompt = 'Return JSON: {"is_correct": boolean, "score": 0-100, "feedback": "string"}'
-        user_prompt = f"Question: {question}\nExpected: {expected}\nStudent: {user_answer}"
-        return self._parse_json(self._call_ai(system_prompt, user_prompt, max_tokens=500))
+        try:
+            system_prompt = 'Return JSON: {"is_correct": boolean, "score": 0-100, "feedback": "string"}'
+            user_prompt = f"Question: {question}\nExpected: {expected}\nStudent: {user_answer}"
+            return self._parse_json(self._call_ai(system_prompt, user_prompt, max_tokens=500))
+        except Exception:
+            return local_ai_service.evaluate_short_answer(question, expected, user_answer)
 
     def identify_weak_topics(self, incorrect_questions: list[dict[str, Any]]) -> list[dict[str, Any]]:
         return local_ai_service.identify_weak_topics(incorrect_questions)
 
     def generate_schedule(self, content: str, weak_topics: list[dict[str, Any]], material_title: str) -> dict[str, Any]:
-        if not self._use_groq():
+        if not self._is_ai_configured():
             return local_ai_service.generate_schedule(content, weak_topics, material_title)
         try:
             weak_topics_str = json.dumps(weak_topics) if weak_topics else "[]"
@@ -429,22 +465,24 @@ Return a 7-day study schedule as a JSON object with these exact keys:
 Return ONLY valid JSON, no conversational intro/outro, and no markdown code fences."""
             user_prompt = f'Plan for "{material_title}":\n{content[:8000]}\nWeak: {weak_topics_str}'
             return self._parse_json(self._call_ai(system_prompt, user_prompt, max_tokens=5000))
-        except ValueError:
+        except Exception:
             return local_ai_service.generate_schedule(content, weak_topics, material_title)
 
     def chat_with_tutor(self, content: str, material_title: str, message: str, history: list[dict[str, str]]) -> str:
-        if not self._use_groq():
+        if not self._is_ai_configured():
             return local_ai_service.chat_with_tutor(content, material_title, message, history)
-        system_prompt = f"""You are StudyAI Tutor for "{material_title}". Be clear and educational.
+        try:
+            system_prompt = f"""You are StudyAI Tutor for "{material_title}". Be clear and educational.
 Context: {content[:8000]}"""
-        # Map assistant -> model or vice versa if needed, but here we just route it via our unified _call_ai history handler
-        formatted_history = []
-        for h in history[-10:]:
-            formatted_history.append({"role": "assistant" if h.get("role") == "assistant" else "user", "content": h.get("content", "")})
-        return self._call_ai(system_prompt, message, max_tokens=1500, history=formatted_history)
+            formatted_history = []
+            for h in history[-10:]:
+                formatted_history.append({"role": "assistant" if h.get("role") == "assistant" else "user", "content": h.get("content", "")})
+            return self._call_ai(system_prompt, message, max_tokens=1500, history=formatted_history)
+        except Exception:
+            return local_ai_service.chat_with_tutor(content, material_title, message, history)
 
     def generate_insights(self, content: str, title: str) -> dict[str, Any]:
-        if not self._use_groq():
+        if not self._is_ai_configured():
             return local_ai_service.generate_insights(content, title)
         try:
             system_prompt = """You are an expert study insights generator.
@@ -467,14 +505,15 @@ Return a structured JSON object with these exact keys:
 Return ONLY valid JSON, no conversational intro/outro, and no markdown code fences."""
             user_prompt = f'Analyze "{title}":\n{content[:10000]}'
             return self._parse_json(self._call_ai(system_prompt, user_prompt, max_tokens=3000))
-        except ValueError:
+        except Exception:
             return local_ai_service.generate_insights(content, title)
 
     def generate_practice_for_weak_topics(self, content: str, weak_topics: list[str], count: int = 5) -> list[dict[str, Any]]:
-        if not self._use_groq():
+        if not self._is_ai_configured():
             return local_ai_service.generate_practice_for_weak_topics(content, weak_topics, count)
-        topics_str = ", ".join(weak_topics) if weak_topics else "general"
-        system_prompt = f"""You are an expert study practice question generator.
+        try:
+            topics_str = ", ".join(weak_topics) if weak_topics else "general"
+            system_prompt = f"""You are an expert study practice question generator.
 Return a JSON array of exactly {count} practice question objects with these exact keys:
 [
   {{
@@ -487,12 +526,14 @@ Return a JSON array of exactly {count} practice question objects with these exac
   }}
 ]
 Return ONLY valid JSON, no conversational intro/outro, and no markdown code fences."""
-        user_prompt = f"Weak topics: {topics_str}\nMaterial:\n{content[:8000]}"
-        questions = self._parse_json(self._call_ai(system_prompt, user_prompt, max_tokens=3000))
-        for i, q in enumerate(questions):
-            if "id" not in q:
-                q["id"] = f"practice_{i + 1}"
-        return questions
+            user_prompt = f"Weak topics: {topics_str}\nMaterial:\n{content[:8000]}"
+            questions = self._parse_json(self._call_ai(system_prompt, user_prompt, max_tokens=3000))
+            for i, q in enumerate(questions):
+                if "id" not in q:
+                    q["id"] = f"practice_{i + 1}"
+            return questions
+        except Exception:
+            return local_ai_service.generate_practice_for_weak_topics(content, weak_topics, count)
 
 
 ai_service = AIService()
