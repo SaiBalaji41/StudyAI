@@ -1,51 +1,53 @@
-# StudyAI — Smart AI Study Companion & Quiz Generator
+# StudyAI — Next-Gen AI Study Companion & Learning Platform
 
-StudyAI is a web-based, AI-powered study companion that helps students convert notes, textbooks, and study materials into structured, interactive learning content.
+StudyAI is a full-stack, AI-powered intelligent study platform that transforms lecture slides, textbook chapters, scanned notes, research papers, web articles, and YouTube video lectures into structured summaries, Anki-style spaced repetition flashcards, adaptive quizzes, and interactive calendar study schedules.
 
-## Features
+---
 
-### Core
-- **Material Upload** — PDF, DOCX, TXT, and pasted text with drag-and-drop
-- **Material Library** — Search, browse, and delete study materials
-- **AI Summary Generator** — Structured markdown summaries with key concepts, definitions, and revision notes
-- **Flashcard Engine** — AI-generated flashcards with 3D flip, shuffle, and mastery tracking
-- **Adaptive Quiz Generator** — MCQ, True/False, Short Answer with timer and auto-evaluation
-- **Weak Topic Identification** — Performance-based topic analysis from quiz results
-- **Personalized Study Schedule** — 7-day AI-generated study plans with task tracking
-- **Learning Analytics Dashboard** — Charts, streaks, achievements, and progress tracking
+## 🚀 Key Features
 
-### New Advanced Features
-- **AI Tutor Chat** — Conversational AI tutor for your study materials
-- **Study Insights** — Exam tips, mind maps, memory techniques, study priority analysis
-- **Targeted Practice** — AI-generated practice questions for weak topics
-- **Pomodoro Focus Timer** — 25/5/15 minute focus sessions with tracking
-- **Study Goals** — Set and track personal study goals
-- **Achievements System** — Unlock badges for study milestones
-- **Study Streaks** — Daily streak tracking to build habits
-- **Dark/Light Theme** — Toggle between themes
-- **Toast Notifications** — Real-time feedback on actions
-- **Responsive Mobile UI** — Collapsible sidebar with mobile navigation
+### 📚 Universal Material Ingestion
+- **Document & Slides Parsing** — PDF, Word (.docx), PowerPoint (.pptx), and Plain Text (.txt).
+- **Multimodal OCR** — Upload pictures, diagrams, and scanned notes (.png, .jpg, .jpeg) for instant OCR text extraction.
+- **Web Article Scraper** — Paste any web article or documentation link (e.g. Wikipedia, ArXiv) to extract clean learning content.
+- **YouTube Video Transcript Parser** — Paste any YouTube lecture or tutorial link to extract spoken subtitles directly into notes.
 
-## Tech Stack
+### 🧠 Intelligent Study Engines
+- **Smart Summary Generator** — High-yield markdown summaries with executive overviews, core concepts, definitions, and revision bullet points.
+- **Anki-Style Flashcard System (SuperMemo SM-2)** — Spaced repetition flashcards with 3D card flips, Text-to-Speech (TTS) audio narration, keyboard shortcuts (`Space`, `1-4`, `←/→`, `S`), and due-date scheduling.
+- **Adaptive Quiz Generator** — Multiple Choice (MCQ with multi-select support), True/False, and Short Answer questions with automated grading, instant explanations, and weak-topic diagnostics.
+- **AI Tutor Companion** — Interactive chat assistant with context awareness of your specific material, notes highlighting, and annotations.
+- **7-Day Study Planner** — Generates personalized daily study schedules with calendar export (.ics) and JSON download.
+- **Learning Intelligence & Insights** — Exam tips, common pitfalls, memory mnemonics, study priorities, and targeted practice for identified weak topics.
 
-| Layer | Technology |
-|-------|-----------|
-| Frontend | React.js, Vite, Chart.js, React Markdown |
-| Backend | Python Flask (REST API) |
-| Database | Firebase Firestore + local JSON fallback |
-| File Storage | Firebase Storage |
-| AI Engine | Groq API (Llama 3.3-70B Versatile) |
+### 📊 Gamification & Focus
+- **XP Progression & Levels** — Earn experience points for studying, taking quizzes, reviewing flashcards, and completing goals.
+- **Achievement Gallery** — 20 unlockable achievement badges celebrating learning milestones.
+- **Pomodoro Focus Timer** — Configurable focus intervals (25/5/15 min) with session tracking.
+- **Analytics & Heatmap** — Track scores over time, study streaks, weak topics breakdown, and daily study activity trends.
 
-## Prerequisites
+### 🔐 Security, Identity & Multi-Engine AI
+- **Secure Authentication** — User registration, login with username/email, password encryption with PBKDF2/Werkzeug, and user data isolation.
+- **Multi-Provider AI Engine** — Groq (Llama 3.3 70B), Google Gemini (1.5 Flash), OpenAI (GPT-4o mini), Anthropic Claude (3.5 Sonnet), DeepSeek, plus offline algorithmic fallback.
+- **Dual Storage Support** — Cloud persistence with Supabase or offline local JSON caching.
 
-- Python 3.10+
-- Node.js 18+
-- Groq API key ([console.groq.com](https://console.groq.com))
-- (Optional) Firebase project for cloud storage
+---
 
-## Setup
+## 🛠️ Tech Stack
 
-### 1. Backend
+| Layer | Technologies |
+|-------|--------------|
+| **Frontend** | React 18, Vite, Chart.js, React Markdown, Lucide Icons, Vanilla CSS Design System |
+| **Backend** | Python 3.12, Flask REST API, Gunicorn / Waitress |
+| **AI Providers** | Groq, Google Generative AI, OpenAI, Anthropic, DeepSeek, Local AI Engine |
+| **Document Processing** | PyPDF2, python-docx, python-pptx, BeautifulSoup4, youtube-transcript-api |
+| **Database & Storage** | Supabase (PostgreSQL + Object Storage) + In-memory & Local JSON fallback |
+
+---
+
+## ⚡ Quick Start
+
+### 1. Backend Setup
 
 ```bash
 cd studyai/backend
@@ -54,7 +56,7 @@ python -m venv venv
 # Windows
 venv\Scripts\activate
 
-# macOS/Linux
+# macOS / Linux
 source venv/bin/activate
 
 pip install -r requirements.txt
@@ -62,23 +64,28 @@ copy .env.example .env   # Windows
 # cp .env.example .env   # macOS/Linux
 ```
 
-Edit `.env` and set your `GROQ_API_KEY`:
-
-```
+Configure your environment variables in `.env`:
+```ini
 GROQ_API_KEY=your_groq_api_key_here
+GROQ_MODEL=llama-3.3-70b-versatile
+FLASK_SECRET_KEY=studyai-dev-secret
+FLASK_PORT=5000
+FLASK_DEBUG=false
+
+# Optional Supabase Cloud Storage
+SUPABASE_URL=your_supabase_url
+SUPABASE_KEY=your_supabase_anon_key
 ```
 
-Start the backend:
-
+Run the backend server:
 ```bash
 python app.py
 ```
+Backend runs on `http://localhost:5000` (Health check: `http://localhost:5000/api/health`).
 
-Backend runs at `http://localhost:5000`
+---
 
-> **Deploy to Render:** See [RENDER_DEPLOY.md](./RENDER_DEPLOY.md) for step-by-step hosting instructions.
-
-### 2. Frontend
+### 2. Frontend Setup
 
 ```bash
 cd studyai/frontend
@@ -86,65 +93,41 @@ npm install
 npm run dev
 ```
 
-Frontend runs at `http://localhost:3000`
+Frontend runs on `http://localhost:3000` (or `http://localhost:5173`).
 
-## Firebase (Optional)
-
-To use Firebase instead of local JSON storage:
-
-1. Create a Firebase project at [console.firebase.google.com](https://console.firebase.google.com)
-2. Enable Firestore and Storage
-3. Download service account credentials as `firebase-credentials.json`
-4. Place it in `backend/` and update `.env`:
-
-```
-FIREBASE_CREDENTIALS_PATH=firebase-credentials.json
-FIREBASE_STORAGE_BUCKET=your-project.appspot.com
+To build for production:
+```bash
+npm run build
 ```
 
-Without Firebase, the app uses local JSON storage in `backend/data/local_db.json`.
+---
 
-## API Endpoints
+## 🚢 Deployment
 
-| Method | Endpoint | Description |
-|--------|----------|-------------|
-| GET | `/api/health` | Health check |
-| POST | `/api/materials/upload` | Upload study material |
-| GET | `/api/materials/` | List materials |
-| POST | `/api/summary/:id` | Generate summary |
-| POST | `/api/flashcards/:id` | Generate flashcards |
-| POST | `/api/quiz/generate/:id` | Generate quiz |
-| POST | `/api/quiz/submit/:id` | Submit quiz answers |
-| POST | `/api/schedule/generate/:id` | Generate study schedule |
-| POST | `/api/tutor/chat/:id` | Chat with AI tutor |
-| POST | `/api/insights/:id` | Generate study insights |
-| POST | `/api/insights/:id/practice` | Generate weak-topic practice |
-| GET | `/api/materials/search?q=` | Search materials |
-| DELETE | `/api/materials/:id` | Delete material |
-| GET/POST | `/api/goals/` | Study goals |
-| POST | `/api/goals/pomodoro` | Record focus session |
-| GET | `/api/analytics/` | Get analytics data |
+### Backend (Render)
+1. Use `render.yaml` or create a new Web Service on [Render](https://render.com).
+2. Set Root Directory to `backend` (or `studyai/backend`).
+3. Set Build Command to `pip install -r requirements.txt`.
+4. Set Start Command to `gunicorn wsgi:application --bind 0.0.0.0:$PORT --workers 2 --threads 4 --timeout 120`.
+5. Set `GROQ_API_KEY` and other optional AI keys in the Render dashboard.
 
-## Project Structure
+### Frontend (Vercel / Netlify / Render Static Site)
+1. Connect the repository and set Root Directory to `studyai/frontend`.
+2. Framework preset: **Vite**.
+3. Build Command: `npm run build`, Output Directory: `dist`.
+4. Environment Variable: `VITE_API_URL=https://your-backend.onrender.com/api`.
 
-```
-studyai/
-├── backend/
-│   ├── app.py              # Flask application entry point
-│   ├── config.py           # Configuration
-│   ├── requirements.txt    # Python dependencies
-│   ├── routes/             # API route blueprints
-│   ├── services/           # AI, storage, file processing
-│   └── data/               # Local JSON fallback storage
-├── frontend/
-│   ├── src/
-│   │   ├── pages/          # Dashboard, Upload, Summary, etc.
-│   │   ├── components/     # Reusable UI components
-│   │   └── services/       # API client
-│   └── package.json
-└── README.md
+---
+
+## 🧪 Testing
+
+Run the automated backend test suite covering all endpoints and fallbacks:
+```bash
+cd studyai/backend
+python test_all_endpoints.py
 ```
 
-## License
+---
 
-College project — for educational purposes.
+## 📄 License
+Educational & open-source project for students and researchers.

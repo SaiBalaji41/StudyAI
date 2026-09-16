@@ -1,85 +1,75 @@
-# Deploy StudyAI Backend on Render
+# Deploy StudyAI on Render & Vercel
 
-## Quick deploy (recommended)
+This guide covers deploying the **StudyAI** backend to Render and frontend to Vercel/Netlify/Render.
 
-1. Push the `studyai` folder to GitHub.
-2. Go to [render.com](https://render.com) → **New** → **Blueprint**.
-3. Connect your repo and select the `render.yaml` file.
-4. In the Render dashboard, set **Environment Variables**:
-   - `GROQ_API_KEY` — your key from [console.groq.com](https://console.groq.com)
-   - `CORS_ORIGINS` — your frontend URL(s), e.g. `https://your-app.onrender.com,http://localhost:3000`
-5. Click **Apply** and wait for the deploy to finish.
-6. Open `https://your-service.onrender.com/api/health` — you should see `"status": "healthy"`.
+---
 
-## Manual deploy (without Blueprint)
+## 🚀 1. Deploy Backend on Render
 
-1. **New** → **Web Service** → connect your GitHub repo.
-2. Settings:
-   - **Root Directory:** `backend` (or `studyai/backend` if repo root is `Vibe Coding`)
-   - **Runtime:** Python 3
+### Option A: Blueprint Deploy (Fastest)
+
+1. Push your repository to GitHub.
+2. Log in to [Render Dashboard](https://dashboard.render.com).
+3. Click **New +** → **Blueprint**.
+4. Connect your `StudyAI` repository and select `render.yaml`.
+5. Under Environment Variables:
+   - `GROQ_API_KEY`: Provide your Groq key from [console.groq.com](https://console.groq.com)
+   - `CORS_ORIGINS`: `*` (or your frontend deployment domain, e.g., `https://your-studyai.vercel.app`)
+6. Click **Apply**.
+7. Once deployed, verify: `https://your-service.onrender.com/api/health` returns `{"status": "healthy"}`.
+
+### Option B: Manual Web Service Deploy
+
+1. Click **New +** → **Web Service** → Connect your repo.
+2. Configuration:
+   - **Name:** `studyai-backend`
+   - **Root Directory:** `studyai/backend` (or `backend` if repo root is `studyai`)
+   - **Runtime:** `Python 3`
    - **Build Command:** `pip install -r requirements.txt`
    - **Start Command:** `gunicorn wsgi:application --bind 0.0.0.0:$PORT --workers 2 --threads 4 --timeout 120`
    - **Health Check Path:** `/api/health`
-3. Add environment variables (see table below).
-4. Deploy.
+3. Environment Variables:
+   | Key | Value |
+   |-----|-------|
+   | `PYTHON_VERSION` | `3.12.3` |
+   | `FLASK_DEBUG` | `false` |
+   | `FLASK_SECRET_KEY` | *(Generate a random 32-char string)* |
+   | `GROQ_API_KEY` | *(Your Groq API Key)* |
+   | `GROQ_MODEL` | `llama-3.3-70b-versatile` |
+   | `CORS_ORIGINS` | `*` |
+   | `SUPABASE_URL` | *(Optional for Cloud Persistence)* |
+   | `SUPABASE_KEY` | *(Optional Supabase anon key)* |
 
-## Environment variables
+---
 
-| Variable | Required | Description |
-|----------|----------|-------------|
-| `GROQ_API_KEY` | Yes (for Groq AI) | Groq API key. Without it, local AI fallback is used. |
-| `FLASK_SECRET_KEY` | Yes | Random secret string (Render can auto-generate). |
-| `CORS_ORIGINS` | Recommended | Comma-separated frontend URLs allowed to call the API. Use `*` for testing. |
-| `GROQ_MODEL` | No | Default: `llama-3.3-70b-versatile` |
-| `FLASK_DEBUG` | No | Keep `false` in production. |
-| `PYTHON_VERSION` | No | e.g. `3.12.3` |
+## 🌐 2. Deploy Frontend on Vercel / Netlify
 
-## Connect your frontend
+1. Go to [Vercel](https://vercel.com) → **Add New Project** → Import your GitHub repository.
+2. Settings:
+   - **Root Directory:** `studyai/frontend` (or `frontend`)
+   - **Framework Preset:** `Vite`
+   - **Build Command:** `npm run build`
+   - **Output Directory:** `dist`
+3. Environment Variables:
+   - `VITE_API_URL` = `https://your-studyai-backend.onrender.com/api`
+4. Click **Deploy**.
 
-After deploy, set the frontend API URL to your Render backend:
+---
 
-**`frontend/.env`**
-```
-VITE_API_URL=https://your-studyai-backend.onrender.com/api
-```
+## 🔄 3. Production Health Check
 
-Rebuild or restart the frontend:
-```bash
-cd studyai/frontend
-npm run dev
-```
-
-For a hosted frontend (Vercel, Netlify, Render static site), set `VITE_API_URL` in that platform’s environment variables and redeploy.
-
-## Important: data storage on Render
-
-Render’s filesystem is **ephemeral** — uploaded materials and quiz data in `local_db.json` are **lost on redeploy or restart**.
-
-For production persistence, use one of:
-
-- **Firebase** (Firestore + Storage) — set `FIREBASE_CREDENTIALS_PATH` and upload credentials
-- **Render Persistent Disk** — mount a disk at `backend/data` (paid plans)
-
-For demos and testing, local JSON on Render works but data resets when the service restarts.
-
-## Free tier notes
-
-- Render free web services **spin down after ~15 minutes** of inactivity; the first request may take 30–60 seconds.
-- Keep `gunicorn` timeout at **120** seconds for long AI requests.
-
-## Verify deployment
-
+Test the live deployment from terminal or browser:
 ```bash
 curl https://your-studyai-backend.onrender.com/api/health
 ```
 
-Expected response:
+Expected Response:
 ```json
 {
-  "status": "healthy",
-  "service": "StudyAI Backend",
-  "storage_mode": "local_json",
   "ai_mode": "groq",
-  "model": "llama-3.3-70b-versatile"
+  "model": "llama-3.3-70b-versatile",
+  "service": "StudyAI Backend",
+  "status": "healthy",
+  "storage_mode": "supabase"
 }
 ```
